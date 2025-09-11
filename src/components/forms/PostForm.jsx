@@ -62,7 +62,7 @@ const PostForm = ({ post, action }) => {
         });
 
         if (newPost) {
-          navigate("/");
+          navigate("/home");
         } else {
           toast({ title: `${action} post failed. Please try again.` });
         }

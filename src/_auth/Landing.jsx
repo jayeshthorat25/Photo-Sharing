@@ -35,14 +35,16 @@ const Landing = () => {
 
           {/* Action Buttons */}
           <div className="flex space-x-4">
-            <button
+            <Link
+              to="/sign-up"
               className="px-6 py-3 font-semibold text-white transition duration-300 ease-in-out transform border-2 border-white rounded-full bg-white/20 backdrop-blur-sm hover:scale-105 hover:bg-white hover:text-gray-900">
-              <Link to="/forms/SignupForm">Sign Up</Link>
-            </button>
-            <button
+              Sign Up
+            </Link>
+            <Link
+              to="/sign-in"
               className="px-6 py-3 font-semibold text-white transition duration-300 ease-in-out transform border-2 border-white rounded-full bg-white/20 backdrop-blur-sm hover:scale-105 hover:bg-white hover:text-gray-900">
-              <Link to="/forms/SigninForm">Login</Link>
-            </button>
+              Login
+            </Link>
           </div>
         </main>
 

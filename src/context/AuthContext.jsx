@@ -68,10 +68,10 @@ export function AuthProvider({ children }) {
 		if (token) {
 			checkAuthUser();
 		} else {
-			// Only redirect to sign-in if we're not already on auth pages
+			// Only redirect to landing if we're not already on auth pages or landing
 			const currentPath = window.location.pathname;
-			if (!currentPath.includes('/sign-in') && !currentPath.includes('/sign-up')) {
-				navigate("/sign-in");
+			if (!currentPath.includes('/sign-in') && !currentPath.includes('/sign-up') && currentPath !== '/') {
+				navigate("/");
 			}
 		}
 	}, []);

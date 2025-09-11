@@ -18,13 +18,13 @@ const LeftSidebar = () => {
     signOut();
     setIsAuthenticated(false);
     setUser(INITIAL_USER);
-    navigate("/sign-in");
+    navigate("/");
   };
 
   return (
     <nav className="leftsidebar">
       <div className="flex flex-col gap-11">
-        <Link to="/" className="flex gap-3 items-center">
+        <Link to="/home" className="flex gap-3 items-center">
           <img
             src="/assets/images/logo.svg"
             alt="logo"
