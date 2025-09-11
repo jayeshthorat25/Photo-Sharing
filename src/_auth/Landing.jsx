@@ -27,10 +27,10 @@ const Landing = () => {
         {/* Hero Section */}
         <main className="flex flex-col items-center justify-center flex-grow p-4 text-center">
           <h1 className="mb-4 text-6xl font-bold">
-            SnapShare
+            SnapGram
           </h1>
           <p className="max-w-xl mx-auto mb-8 text-lg font-light">
-            Share your moments, one snap at a time. SnapShare is the easiest way to capture, edit, and share life's best memories with the people all around the world.
+            Share your moments, one snap at a time. SnapGram is the easiest way to capture, edit, and share life's best memories with the people all around the world.
           </p>
 
           {/* Action Buttons */}
