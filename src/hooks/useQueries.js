@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import {
   createUserAccount,
   signInAccount,
@@ -26,7 +26,7 @@ import {
 } from '@/lib/services/api';
 
 // Simple hook for making API calls
-const useApiCall = (apiFunction) => {
+const useApiCall = (apiFunction, autoFetch = false) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -46,6 +46,13 @@ const useApiCall = (apiFunction) => {
       setIsLoading(false);
     }
   }, [apiFunction]);
+
+  // Auto-fetch data when component mounts if autoFetch is true
+  useEffect(() => {
+    if (autoFetch && apiFunction) {
+      callApi();
+    }
+  }, [autoFetch, callApi]);
 
   return { data, isLoading, error, callApi };
 };
@@ -67,15 +74,18 @@ export const useSearchPosts = (searchTerm) => {
   const apiFunction = useCallback(() => searchPosts(searchTerm), [searchTerm]);
   return useApiCall(apiFunction);
 };
-export const useGetRecentPosts = () => useApiCall(getRecentPosts);
+export const useGetRecentPosts = () => useApiCall(getRecentPosts, true); // Auto-fetch
 export const useCreatePost = () => useApiCall(createPost);
 export const useGetPostById = (postId) => {
-  const apiFunction = useCallback(() => getPostById(postId), [postId]);
-  return useApiCall(apiFunction);
+  const apiFunction = useCallback(() => {
+    console.log('useGetPostById - fetching post with ID:', postId); // Debug log
+    return getPostById(postId);
+  }, [postId]);
+  return useApiCall(apiFunction, !!postId); // Auto-fetch if postId exists
 };
 export const useGetUserPosts = (userId) => {
   const apiFunction = useCallback(() => getUserPosts(userId), [userId]);
-  return useApiCall(apiFunction);
+  return useApiCall(apiFunction, !!userId); // Auto-fetch if userId exists
 };
 export const useUpdatePost = () => useApiCall(updatePost);
 export const useDeletePost = () => {
@@ -100,11 +110,11 @@ export const useGetSavedPosts = () => useApiCall(getSavedPosts);
 export const useGetCurrentUser = () => useApiCall(getCurrentUser);
 export const useGetUsers = (limit) => {
   const apiFunction = useCallback(() => getUsers(limit), [limit]);
-  return useApiCall(apiFunction);
+  return useApiCall(apiFunction, true); // Auto-fetch
 };
 export const useGetUserById = (userId) => {
   const apiFunction = useCallback(() => getUserById(userId), [userId]);
-  return useApiCall(apiFunction);
+  return useApiCall(apiFunction, !!userId); // Auto-fetch if userId exists
 };
 export const useUpdateUser = () => useApiCall(updateUser);
 
@@ -114,7 +124,7 @@ export const useUpdateUser = () => useApiCall(updateUser);
 
 export const useGetComments = (postId) => {
   const apiFunction = useCallback(() => getComments(postId), [postId]);
-  return useApiCall(apiFunction);
+  return useApiCall(apiFunction, !!postId); // Auto-fetch if postId exists
 };
 export const useCreateComment = () => {
   const apiFunction = useCallback(({ postId, content }) => createComment(postId, content), []);

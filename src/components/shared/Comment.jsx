@@ -10,6 +10,8 @@ const Comment = ({ comment, onCommentUpdated }) => {
   const { user } = useUserContext();
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const { callApi: updateComment } = useUpdateComment();
   const { callApi: deleteComment } = useDeleteComment();
 
@@ -17,12 +19,17 @@ const Comment = ({ comment, onCommentUpdated }) => {
 
   const handleUpdateComment = async () => {
     if (editContent.trim() && editContent !== comment.content) {
+      setIsUpdating(true);
       try {
         await updateComment({ commentId: comment.id, content: editContent.trim() });
         setIsEditing(false);
         onCommentUpdated?.();
+        console.log('Comment updated successfully'); // Debug log
       } catch (error) {
         console.error('Error updating comment:', error);
+        alert('Failed to update comment. Please try again.');
+      } finally {
+        setIsUpdating(false);
       }
     } else {
       setIsEditing(false);
@@ -31,11 +38,16 @@ const Comment = ({ comment, onCommentUpdated }) => {
 
   const handleDeleteComment = async () => {
     if (window.confirm('Are you sure you want to delete this comment?')) {
+      setIsDeleting(true);
       try {
         await deleteComment(comment.id);
         onCommentUpdated?.();
+        console.log('Comment deleted successfully'); // Debug log
       } catch (error) {
         console.error('Error deleting comment:', error);
+        alert('Failed to delete comment. Please try again.');
+      } finally {
+        setIsDeleting(false);
       }
     }
   };
@@ -78,14 +90,16 @@ const Comment = ({ comment, onCommentUpdated }) => {
                 onClick={handleUpdateComment}
                 size="sm"
                 className="px-3 py-1"
+                disabled={isUpdating}
               >
-                Save
+                {isUpdating ? 'Saving...' : 'Save'}
               </SimpleButton>
               <SimpleButton
                 onClick={handleCancelEdit}
                 variant="outline"
                 size="sm"
                 className="px-3 py-1"
+                disabled={isUpdating}
               >
                 Cancel
               </SimpleButton>
@@ -102,6 +116,7 @@ const Comment = ({ comment, onCommentUpdated }) => {
                   variant="ghost"
                   size="sm"
                   className="p-0 h-auto text-light-3 hover:text-light-1"
+                  disabled={isDeleting}
                 >
                   Edit
                 </SimpleButton>
@@ -110,8 +125,9 @@ const Comment = ({ comment, onCommentUpdated }) => {
                   variant="ghost"
                   size="sm"
                   className="p-0 h-auto text-red hover:text-red/80"
+                  disabled={isDeleting}
                 >
-                  Delete
+                  {isDeleting ? 'Deleting...' : 'Delete'}
                 </SimpleButton>
               </div>
             )}
