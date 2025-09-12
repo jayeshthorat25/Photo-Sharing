@@ -22,7 +22,7 @@ const Home = () => {
   useEffect(() => {
     fetchPosts();
     fetchUsers();
-  }, [fetchPosts, fetchUsers]);
+  }, []); // Empty dependency array - only run once
 
   if (isErrorPosts || isErrorCreators) {
     return (

@@ -16,6 +16,7 @@ import RootLayout from "./_root/RootLayout";
 import SignupForm from "@/_auth/forms/SignupForm";
 import SigninForm from "@/_auth/forms/SigninForm";
 import { ToastProvider } from "@/components/ui/SimpleToast";
+import { SavedPostsProvider } from "@/context/SavedPostsContext";
 
 import "./globals.css";
 import Landing from "./_auth/Landing";
@@ -23,7 +24,8 @@ import Landing from "./_auth/Landing";
 const App = () => {
   return (
     <ToastProvider>
-      <Routes>
+      <SavedPostsProvider>
+        <Routes>
         {/* Landing page as the default route - full screen */}
         <Route index element={<Landing />} />
         
@@ -45,7 +47,8 @@ const App = () => {
           <Route path="/profile/:id/*" element={<Profile />} />
           <Route path="/update-profile/:id" element={<UpdateProfile />} />
         </Route>
-      </Routes>
+        </Routes>
+      </SavedPostsProvider>
     </ToastProvider>
   );
 };

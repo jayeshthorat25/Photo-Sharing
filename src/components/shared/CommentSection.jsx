@@ -14,6 +14,11 @@ const CommentSection = ({ postId }) => {
   const { data: comments, isLoading, callApi: fetchComments } = useGetComments(postId);
   const { callApi: createComment } = useCreateComment();
 
+  // Fetch comments when component mounts
+  useEffect(() => {
+    fetchComments();
+  }, []); // Empty dependency array - only run once
+
   const handleSubmitComment = async (e) => {
     e.preventDefault();
     if (!newComment.trim() || isSubmitting) return;
