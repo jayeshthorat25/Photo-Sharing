@@ -47,6 +47,7 @@ class LoginView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
+        # Since USERNAME_FIELD is 'email', we need to authenticate with email
         user = authenticate(username=username, password=password)
         if user:
             refresh = RefreshToken.for_user(user)
