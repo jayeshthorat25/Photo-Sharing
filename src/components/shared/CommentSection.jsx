@@ -3,7 +3,7 @@ import { useUserContext } from '@/context/AuthContext';
 import { useGetComments, useCreateComment } from '@/hooks/useQueries';
 import Comment from './Comment';
 import SimpleButton from '@/components/ui/SimpleButton';
-import SimpleTextarea from '@/components/ui/SimpleTextarea';
+// Removed SimpleTextarea import - using simple HTML textarea instead
 import { Loader } from './index';
 
 const CommentSection = ({ postId }) => {
@@ -61,11 +61,11 @@ const CommentSection = ({ postId }) => {
             className="w-8 h-8 rounded-full object-cover"
           />
           <div className="flex-1">
-            <SimpleTextarea
+            <textarea
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
-              className="min-h-[60px]"
+              className="w-full min-h-[60px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
             />
             <div className="flex justify-end mt-2">
               <SimpleButton

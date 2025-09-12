@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
+// Simple form hook for beginners
 export const useSimpleForm = ({
   initialValues,
   validate,
@@ -9,25 +10,30 @@ export const useSimpleForm = ({
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const setValue = useCallback((name, value) => {
+  // Update a single field value
+  const setValue = (name, value) => {
     setValues(prev => ({ ...prev, [name]: value }));
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
-  }, [errors]);
+  };
 
-  const setError = useCallback((name, error) => {
+  // Set error for a specific field
+  const setError = (name, error) => {
     setErrors(prev => ({ ...prev, [name]: error }));
-  }, []);
+  };
 
-  const setFormErrors = useCallback((newErrors) => {
+  // Set multiple errors at once
+  const setFormErrors = (newErrors) => {
     setErrors(newErrors);
-  }, []);
+  };
 
-  const handleSubmit = useCallback(async (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Validate form if validation function is provided
     if (validate) {
       const validationErrors = validate(values);
       if (Object.keys(validationErrors).length > 0) {
@@ -44,13 +50,14 @@ export const useSimpleForm = ({
     } finally {
       setIsSubmitting(false);
     }
-  }, [values, validate, onSubmit]);
+  };
 
-  const reset = useCallback(() => {
+  // Reset form to initial values
+  const reset = () => {
     setValues(initialValues);
     setErrors({});
     setIsSubmitting(false);
-  }, [initialValues]);
+  };
 
   return {
     values,

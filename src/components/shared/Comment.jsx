@@ -4,7 +4,7 @@ import { multiFormatDateString } from '@/lib/utils';
 import { useUserContext } from '@/context/AuthContext';
 import { useDeleteComment, useUpdateComment } from '@/hooks/useQueries';
 import SimpleButton from '@/components/ui/SimpleButton';
-import SimpleTextarea from '@/components/ui/SimpleTextarea';
+// Removed SimpleTextarea import - using simple HTML textarea instead
 
 const Comment = ({ comment, onCommentUpdated }) => {
   const { user } = useUserContext();
@@ -67,10 +67,10 @@ const Comment = ({ comment, onCommentUpdated }) => {
         
         {isEditing ? (
           <div className="space-y-2">
-            <SimpleTextarea
+            <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="min-h-[60px]"
+              className="w-full min-h-[60px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Edit your comment..."
             />
             <div className="flex gap-2">

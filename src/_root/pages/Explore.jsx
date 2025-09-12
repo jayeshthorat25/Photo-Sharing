@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 
-import SimpleInput from "@/components/ui/SimpleInput";
+// Removed SimpleInput import - using simple HTML input instead
 import useDebounce from "@/hooks/useDebounce";
 import { GridPostList, Loader } from "@/components/shared";
 import { useGetPosts, useSearchPosts } from "@/hooks/useQueries";
@@ -64,10 +64,10 @@ const Explore = () => {
             height={24}
             alt="search"
           />
-          <SimpleInput
+          <input
             type="text"
             placeholder="Search"
-            className="explore-search"
+            className="explore-search w-full bg-transparent py-3 pl-1 text-light-1 placeholder:text-light-4 focus:outline-none"
             value={searchValue}
             onChange={(e) => {
               const { value } = e.target;
