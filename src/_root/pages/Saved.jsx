@@ -1,13 +1,8 @@
-import { useEffect } from "react";
 import { GridPostList, Loader } from "@/components/shared";
-import { useGetSavedPosts } from "@/hooks/useQueries";
+import { useSavedPosts } from "@/context/SavedPostsContext";
 
 const Saved = () => {
-  const { data: savedPosts, isLoading, callApi: fetchSavedPosts } = useGetSavedPosts();
-
-  useEffect(() => {
-    fetchSavedPosts();
-  }, [fetchSavedPosts]);
+  const { savedPosts, isLoading } = useSavedPosts();
 
   const savePosts = savedPosts?.documents?.map((savePost) => ({
     ...savePost.post,

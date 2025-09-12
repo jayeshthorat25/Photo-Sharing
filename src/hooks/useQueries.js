@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import {
   createUserAccount,
   signInAccount,
@@ -31,7 +31,7 @@ const useApiCall = (apiFunction) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const callApi = async (...args) => {
+  const callApi = useCallback(async (...args) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -45,7 +45,7 @@ const useApiCall = (apiFunction) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [apiFunction]);
 
   return { data, isLoading, error, callApi };
 };
@@ -63,15 +63,33 @@ export const useSignOutAccount = () => useApiCall(signOutAccount);
 // ============================================================
 
 export const useGetPosts = () => useApiCall(getInfinitePosts);
-export const useSearchPosts = (searchTerm) => useApiCall(() => searchPosts(searchTerm));
+export const useSearchPosts = (searchTerm) => {
+  const apiFunction = useCallback(() => searchPosts(searchTerm), [searchTerm]);
+  return useApiCall(apiFunction);
+};
 export const useGetRecentPosts = () => useApiCall(getRecentPosts);
 export const useCreatePost = () => useApiCall(createPost);
-export const useGetPostById = (postId) => useApiCall(() => getPostById(postId));
-export const useGetUserPosts = (userId) => useApiCall(() => getUserPosts(userId));
+export const useGetPostById = (postId) => {
+  const apiFunction = useCallback(() => getPostById(postId), [postId]);
+  return useApiCall(apiFunction);
+};
+export const useGetUserPosts = (userId) => {
+  const apiFunction = useCallback(() => getUserPosts(userId), [userId]);
+  return useApiCall(apiFunction);
+};
 export const useUpdatePost = () => useApiCall(updatePost);
-export const useDeletePost = () => useApiCall(({ postId, imageId }) => deletePost(postId, imageId));
-export const useLikePost = () => useApiCall(({ postId, likesArray }) => likePost(postId, likesArray));
-export const useSavePost = () => useApiCall(({ userId, postId }) => savePost(userId, postId));
+export const useDeletePost = () => {
+  const apiFunction = useCallback(({ postId, imageId }) => deletePost(postId, imageId), []);
+  return useApiCall(apiFunction);
+};
+export const useLikePost = () => {
+  const apiFunction = useCallback(({ postId, likesArray }) => likePost(postId, likesArray), []);
+  return useApiCall(apiFunction);
+};
+export const useSavePost = () => {
+  const apiFunction = useCallback(({ userId, postId }) => savePost(userId, postId), []);
+  return useApiCall(apiFunction);
+};
 export const useDeleteSavedPost = () => useApiCall(deleteSavedPost);
 export const useGetSavedPosts = () => useApiCall(getSavedPosts);
 
@@ -80,15 +98,30 @@ export const useGetSavedPosts = () => useApiCall(getSavedPosts);
 // ============================================================
 
 export const useGetCurrentUser = () => useApiCall(getCurrentUser);
-export const useGetUsers = (limit) => useApiCall(() => getUsers(limit));
-export const useGetUserById = (userId) => useApiCall(() => getUserById(userId));
+export const useGetUsers = (limit) => {
+  const apiFunction = useCallback(() => getUsers(limit), [limit]);
+  return useApiCall(apiFunction);
+};
+export const useGetUserById = (userId) => {
+  const apiFunction = useCallback(() => getUserById(userId), [userId]);
+  return useApiCall(apiFunction);
+};
 export const useUpdateUser = () => useApiCall(updateUser);
 
 // ============================================================
 // COMMENT QUERIES
 // ============================================================
 
-export const useGetComments = (postId) => useApiCall(() => getComments(postId));
-export const useCreateComment = () => useApiCall(({ postId, content }) => createComment(postId, content));
-export const useUpdateComment = () => useApiCall(({ commentId, content }) => updateComment(commentId, content));
+export const useGetComments = (postId) => {
+  const apiFunction = useCallback(() => getComments(postId), [postId]);
+  return useApiCall(apiFunction);
+};
+export const useCreateComment = () => {
+  const apiFunction = useCallback(({ postId, content }) => createComment(postId, content), []);
+  return useApiCall(apiFunction);
+};
+export const useUpdateComment = () => {
+  const apiFunction = useCallback(({ commentId, content }) => updateComment(commentId, content), []);
+  return useApiCall(apiFunction);
+};
 export const useDeleteComment = () => useApiCall(deleteComment);
