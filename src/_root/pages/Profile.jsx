@@ -12,6 +12,7 @@ import { LikedPosts } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById } from "@/hooks/useQueries";
 import { GridPostList, Loader } from "@/components/shared";
+import { getImageUrl } from "@/lib/api";
 
 const StatBlock = ({ value, label }) => (
   <div className="flex-center gap-2">
@@ -40,7 +41,7 @@ const Profile = () => {
         <div className="flex xl:flex-row flex-col max-xl:items-center flex-1 gap-7">
           <img
             src={
-              currentUser.imageUrl || "/assets/icons/profile-placeholder.svg"
+              getImageUrl(currentUser.imageUrl) || "/assets/icons/profile-placeholder.svg"
             }
             alt="profile"
             className="w-28 h-28 lg:h-36 lg:w-36 rounded-full"

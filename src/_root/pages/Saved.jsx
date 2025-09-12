@@ -1,17 +1,18 @@
+import { useEffect } from "react";
 import { GridPostList, Loader } from "@/components/shared";
-import { useGetCurrentUser } from "@/hooks/useQueries";
+import { useGetSavedPosts } from "@/hooks/useQueries";
 
 const Saved = () => {
-  const { data: currentUser } = useGetCurrentUser();
+  const { data: savedPosts, isLoading, callApi: fetchSavedPosts } = useGetSavedPosts();
 
-  const savePosts = currentUser?.save
-    ?.map((savePost) => ({
-      ...savePost.post,
-      creator: {
-        imageUrl: currentUser.imageUrl,
-      },
-    }))
-    .reverse() || [];
+  useEffect(() => {
+    fetchSavedPosts();
+  }, [fetchSavedPosts]);
+
+  const savePosts = savedPosts?.documents?.map((savePost) => ({
+    ...savePost.post,
+    user: savePost.post.user, // Use the user field from the post
+  })) || [];
 
   return (
     <div className="saved-container">
@@ -26,7 +27,7 @@ const Saved = () => {
         <h2 className="h3-bold md:h2-bold text-left w-full">Saved Posts</h2>
       </div>
 
-      {!currentUser ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <ul className="w-full flex justify-center max-w-5xl gap-9">

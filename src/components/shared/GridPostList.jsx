@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 
 import { PostStats } from "@/components/shared";
 import { useUserContext } from "@/context/AuthContext";
+import { getImageUrl } from "@/lib/api";
 
 const GridPostList = ({
   posts,
@@ -16,7 +17,7 @@ const GridPostList = ({
         <li key={post.id} className="relative min-w-80 h-80">
           <Link to={`/posts/${post.id}`} className="grid-post_link">
             <img
-              src={post.imageUrl}
+              src={getImageUrl(post.imageUrl)}
               alt="post"
               className="h-full w-full object-cover"
             />
@@ -27,13 +28,13 @@ const GridPostList = ({
               <div className="flex items-center justify-start gap-2 flex-1">
                 <img
                   src={
-                    post.creator.imageUrl ||
+                    getImageUrl(post.user.imageUrl) ||
                     "/assets/icons/profile-placeholder.svg"
                   }
                   alt="creator"
                   className="w-8 h-8 rounded-full"
                 />
-                <p className="line-clamp-1">{post.creator.name}</p>
+                <p className="line-clamp-1">{post.user.name}</p>
               </div>
             )}
             {showStats && <PostStats post={post} userId={user.id} />}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import SimpleButton from "../ui/SimpleButton";
 import { useUserContext } from "@/context/AuthContext";
 import { useSignOutAccount } from "@/hooks/useQueries";
+import { getImageUrl } from "@/lib/api";
 
 const Topbar = () => {
   const { user } = useUserContext();
@@ -31,7 +32,7 @@ const Topbar = () => {
           </SimpleButton>
           <Link to={`/profile/${user.id}`} className="flex-center gap-3">
             <img
-              src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
+              src={getImageUrl(user.imageUrl) || "/assets/icons/profile-placeholder.svg"}
               alt="profile"
               className="h-8 w-8 rounded-full"
             />

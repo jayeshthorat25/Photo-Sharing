@@ -18,6 +18,7 @@ import {
   searchPosts,
   savePost,
   deleteSavedPost,
+  getSavedPosts,
   getComments,
   createComment,
   updateComment,
@@ -72,6 +73,7 @@ export const useDeletePost = () => useAxiosCall(({ postId, imageId }) => deleteP
 export const useLikePost = () => useAxiosCall(({ postId, likesArray }) => likePost(postId, likesArray));
 export const useSavePost = () => useAxiosCall(({ userId, postId }) => savePost(userId, postId));
 export const useDeleteSavedPost = () => useAxiosCall(deleteSavedPost);
+export const useGetSavedPosts = () => useAxiosCall(getSavedPosts);
 
 // ============================================================
 // USER QUERIES
