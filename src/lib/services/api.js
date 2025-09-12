@@ -164,7 +164,9 @@ export const searchPosts = async (searchTerm) => {
 export const getPostById = async (postId) => {
   try {
     if (!postId) throw new Error('Post ID is required');
+    console.log('getPostById API call - postId:', postId); // Debug log
     const response = await api.get(`/api/posts/${postId}/`);
+    console.log('getPostById API response:', response.data); // Debug log
     return response.data;
   } catch (error) {
     console.error('Error getting post by ID:', error);
@@ -275,8 +277,13 @@ export const getSavedPosts = async () => {
 
 export const getComments = async (postId) => {
   try {
+    console.log('getComments API call - postId:', postId); // Debug log
     const response = await api.get(`/api/posts/${postId}/comments/`);
-    return response.data;
+    console.log('getComments API response:', response.data); // Debug log
+    // Handle different response formats - check if it's paginated or direct array
+    const comments = response.data.results || response.data;
+    console.log('getComments processed comments:', comments); // Debug log
+    return comments;
   } catch (error) {
     console.error('Error getting comments:', error);
     throw error;

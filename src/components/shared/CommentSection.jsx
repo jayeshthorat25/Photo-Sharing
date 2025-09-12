@@ -14,10 +14,7 @@ const CommentSection = ({ postId }) => {
   const { data: comments, isLoading, callApi: fetchComments } = useGetComments(postId);
   const { callApi: createComment } = useCreateComment();
 
-  // Fetch comments when component mounts
-  useEffect(() => {
-    fetchComments();
-  }, []); // Empty dependency array - only run once
+  // Comments will be auto-fetched by the useGetComments hook
 
   const handleSubmitComment = async (e) => {
     e.preventDefault();
@@ -29,8 +26,10 @@ const CommentSection = ({ postId }) => {
       setNewComment('');
       // Refresh comments
       await fetchComments();
+      console.log('Comment created successfully'); // Debug log
     } catch (error) {
       console.error('Error creating comment:', error);
+      alert('Failed to create comment. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -40,6 +39,10 @@ const CommentSection = ({ postId }) => {
     // Refresh comments when a comment is updated or deleted
     await fetchComments();
   };
+
+  console.log('CommentSection - postId:', postId, 'comments:', comments, 'isLoading:', isLoading); // Debug log
+  console.log('CommentSection - comments type:', typeof comments, 'isArray:', Array.isArray(comments)); // Debug log
+  console.log('CommentSection - comments length:', comments?.length); // Debug log
 
   if (isLoading) {
     return (

@@ -19,10 +19,7 @@ const Home = () => {
     callApi: fetchUsers,
   } = useGetUsers(10);
 
-  useEffect(() => {
-    fetchPosts();
-    fetchUsers();
-  }, []); // Empty dependency array - only run once
+  // Posts and users will be auto-fetched by the hooks
 
   if (isErrorPosts || isErrorCreators) {
     return (
