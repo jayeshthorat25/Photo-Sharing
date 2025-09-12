@@ -1,26 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/SimpleForm";
-import { useToast } from "@/components/ui/SimpleToast";
-import SimpleTextarea from "@/components/ui/SimpleTextarea";
-import SimpleInput from "@/components/ui/SimpleInput";
-import SimpleButton from "@/components/ui/SimpleButton";
 import { ProfileUploader, Loader } from "@/components/shared";
-
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById, useUpdateUser } from "@/hooks/useQueries";
-import { useSimpleForm } from "@/hooks/useSimpleForm";
-import { validateProfile } from "@/lib/validation/simple";
 
 const UpdateProfile = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { id } = useParams();
   const { user, setUser } = useUserContext();
@@ -29,42 +14,81 @@ const UpdateProfile = () => {
   const { data: currentUser } = useGetUserById(id || "");
   const { callApi: updateUser, isLoading: isLoadingUpdate } = useUpdateUser();
 
-  const form = useSimpleForm({
-    initialValues: {
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      bio: user.bio || "",
-    },
-    validate: validateProfile,
-    onSubmit: async (values) => {
-      try {
-        const updatedUser = await updateUser({
-          userId: currentUser?.id || "",
-          name: values.name,
-          bio: values.bio,
-          file: [],
-          imageUrl: currentUser?.imageUrl || "",
-          imageId: currentUser?.imageId || "",
-        });
-
-        if (updatedUser) {
-          setUser({
-            ...user,
-            name: updatedUser.name,
-            bio: updatedUser.bio,
-            imageUrl: updatedUser.imageUrl || "",
-          });
-          navigate(`/profile/${id}`);
-        } else {
-          toast({ title: "Update user failed. Please try again." });
-        }
-      } catch (error) {
-        console.error('Update error:', error);
-        toast({ title: "An error occurred. Please try again." });
-      }
-    }
+  // Simple form state
+  const [formData, setFormData] = useState({
+    name: user.name,
+    username: user.username,
+    email: user.email,
+    bio: user.bio || "",
   });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+  };
+
+  // Simple validation
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const updatedUser = await updateUser({
+        userId: currentUser?.id || "",
+        name: formData.name,
+        bio: formData.bio,
+        file: [],
+        imageUrl: currentUser?.imageUrl || "",
+        imageId: currentUser?.imageId || "",
+      });
+
+      if (updatedUser) {
+        setUser({
+          ...user,
+          name: updatedUser.name,
+          bio: updatedUser.bio,
+          imageUrl: updatedUser.imageUrl || "",
+        });
+        navigate(`/profile/${id}`);
+      } else {
+        alert("Update user failed. Please try again.");
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!currentUser)
     return (
@@ -72,8 +96,6 @@ const UpdateProfile = () => {
         <Loader />
       </div>
     );
-
-  // Note: Form submission is handled in the useSimpleForm hook
 
   return (
     <div className="flex flex-1">
@@ -89,109 +111,97 @@ const UpdateProfile = () => {
           <h2 className="h3-bold md:h2-bold text-left w-full">Edit Profile</h2>
         </div>
 
-        <Form onSubmit={form.handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className="flex flex-col gap-7 w-full mt-4 max-w-5xl">
-            <FormField name="file">
-              {({ error }) => (
-                <FormItem className="flex">
-                  <FormControl>
-                    <ProfileUploader
-                      fieldChange={() => {}} // Profile uploader handles its own state
-                      mediaUrl={currentUser?.imageUrl || ""}
-                    />
-                  </FormControl>
-                  {error && <FormMessage>{error}</FormMessage>}
-                </FormItem>
-              )}
-            </FormField>
+            <div className="flex">
+              <ProfileUploader
+                fieldChange={() => {}} // Profile uploader handles its own state
+                mediaUrl={currentUser?.imageUrl || ""}
+              />
+            </div>
 
-            <FormField name="name">
-              {({ error }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <SimpleInput
-                      type="text"
-                      value={form.values.name}
-                      onChange={(e) => form.setValue('name', e.target.value)}
-                      error={error}
-                    />
-                  </FormControl>
-                  {error && <FormMessage>{error}</FormMessage>}
-                </FormItem>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-light-1 mb-2">
+                Name
+              </label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="Enter your name"
+              />
+              {errors.name && (
+                <p className="text-sm text-red-500 mt-1">{errors.name}</p>
               )}
-            </FormField>
+            </div>
 
-            <FormField name="username">
-              {({ error }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <SimpleInput
-                      type="text"
-                      value={form.values.username}
-                      onChange={(e) => form.setValue('username', e.target.value)}
-                      error={error}
-                      disabled
-                    />
-                  </FormControl>
-                  {error && <FormMessage>{error}</FormMessage>}
-                </FormItem>
-              )}
-            </FormField>
+            <div>
+              <label htmlFor="username" className="block text-sm font-medium text-light-1 mb-2">
+                Username
+              </label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                disabled
+                className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
+                placeholder="Username"
+              />
+            </div>
 
-            <FormField name="email">
-              {({ error }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <SimpleInput
-                      type="email"
-                      value={form.values.email}
-                      onChange={(e) => form.setValue('email', e.target.value)}
-                      error={error}
-                      disabled
-                    />
-                  </FormControl>
-                  {error && <FormMessage>{error}</FormMessage>}
-                </FormItem>
-              )}
-            </FormField>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-light-1 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                disabled
+                className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
+                placeholder="Email"
+              />
+            </div>
 
-            <FormField name="bio">
-              {({ error }) => (
-                <FormItem>
-                  <FormLabel>Bio</FormLabel>
-                  <FormControl>
-                    <SimpleTextarea
-                      value={form.values.bio}
-                      onChange={(e) => form.setValue('bio', e.target.value)}
-                      error={error}
-                      className="custom-scrollbar"
-                    />
-                  </FormControl>
-                  {error && <FormMessage>{error}</FormMessage>}
-                </FormItem>
-              )}
-            </FormField>
+            <div>
+              <label htmlFor="bio" className="block text-sm font-medium text-light-1 mb-2">
+                Bio
+              </label>
+              <textarea
+                id="bio"
+                name="bio"
+                value={formData.bio}
+                onChange={handleChange}
+                className="w-full min-h-[80px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar"
+                placeholder="Tell us about yourself"
+              />
+            </div>
 
             <div className="flex gap-4 items-center justify-end">
-              <SimpleButton
+              <button
                 type="button"
-                variant="secondary"
-                onClick={() => navigate(-1)}>
+                onClick={() => navigate(-1)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+              >
                 Cancel
-              </SimpleButton>
-              <SimpleButton
+              </button>
+              <button
                 type="submit"
-                className="whitespace-nowrap"
-                disabled={isLoadingUpdate || form.isSubmitting}>
-                {isLoadingUpdate && <Loader />}
-                Update Profile
-              </SimpleButton>
+                disabled={isLoadingUpdate || isSubmitting}
+                className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+              >
+                {isLoadingUpdate ? "Loading..." : "Update Profile"}
+              </button>
             </div>
           </div>
-        </Form>
+        </form>
       </div>
     </div>
   );

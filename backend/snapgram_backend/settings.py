@@ -85,7 +85,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'snapgram',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': '311003',
         'HOST': 'localhost',
         'PORT': '3306',
     }

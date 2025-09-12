@@ -1,169 +1,181 @@
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/SimpleForm";
-import SimpleButton from "@/components/ui/SimpleButton";
-import SimpleInput from "@/components/ui/SimpleInput";
-import SimpleTextarea from "@/components/ui/SimpleTextarea";
-import { validatePost } from "@/lib/validation/simple";
-import { useToast } from "@/components/ui/SimpleToast";
 import { useUserContext } from "@/context/AuthContext";
-import { FileUploader, Loader } from "@/components/shared";
+import { FileUploader } from "@/components/shared";
 import { useCreatePost, useUpdatePost } from "@/hooks/useQueries";
-import { useSimpleForm } from "@/hooks/useSimpleForm";
 
 const PostForm = ({ post, action }) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const { user } = useUserContext();
 
   // Query
   const { callApi: createPost, isLoading: isLoadingCreate } = useCreatePost();
   const { callApi: updatePost, isLoading: isLoadingUpdate } = useUpdatePost();
 
-  const form = useSimpleForm({
-    initialValues: {
-      caption: post ? post?.caption : "",
-      location: post ? post.location : "",
-      tags: post ? post.tags?.join(",") : "",
-    },
-    validate: validatePost,
-    onSubmit: async (values) => {
-      try {
-        // ACTION = UPDATE
-        if (post && action === "Update") {
-          const updatedPost = await updatePost({
-            ...values,
-            postId: post.id,
-            imageId: post.imageId,
-            imageUrl: post.imageUrl,
-            file: [], // Add empty file array for update
-          });
+  // Simple form state
+  const [formData, setFormData] = useState({
+    caption: post ? post?.caption : "",
+    location: post ? post.location : "",
+    tags: post ? post.tags?.join(",") : "",
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-          if (updatedPost) {
-            navigate(`/posts/${post.id}`);
-          } else {
-            toast({ title: `${action} post failed. Please try again.` });
-          }
-          return;
-        }
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+  };
 
-        // ACTION = CREATE
-        const newPost = await createPost({
-          ...values,
-          userId: user.id,
-          file: [], // Add empty file array for create
+  // Simple validation
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.caption.trim()) {
+      newErrors.caption = "Caption is required";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // ACTION = UPDATE
+      if (post && action === "Update") {
+        const updatedPost = await updatePost({
+          ...formData,
+          postId: post.id,
+          imageId: post.imageId,
+          imageUrl: post.imageUrl,
+          file: [], // Add empty file array for update
         });
 
-        if (newPost) {
-          navigate("/home");
+        if (updatedPost) {
+          navigate(`/posts/${post.id}`);
         } else {
-          toast({ title: `${action} post failed. Please try again.` });
+          alert(`${action} post failed. Please try again.`);
         }
-      } catch (error) {
-        console.error('Post submission error:', error);
-        toast({ title: "An error occurred. Please try again." });
+        return;
       }
-    }
-  });
 
-  // Note: Form submission is handled in the useSimpleForm hook
+      // ACTION = CREATE
+      const newPost = await createPost({
+        ...formData,
+        userId: user.id,
+        file: [], // Add empty file array for create
+      });
+
+      if (newPost) {
+        navigate("/home");
+      } else {
+        alert(`${action} post failed. Please try again.`);
+      }
+    } catch (error) {
+      console.error('Post submission error:', error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <Form onSubmit={form.handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <div className="flex flex-col gap-9 w-full max-w-5xl">
-        <FormField name="caption">
-          {({ error }) => (
-            <FormItem>
-              <FormLabel>Caption</FormLabel>
-              <FormControl>
-                <SimpleTextarea
-                  value={form.values.caption}
-                  onChange={(e) => form.setValue('caption', e.target.value)}
-                  error={error}
-                  className="custom-scrollbar"
-                />
-              </FormControl>
-              {error && <FormMessage>{error}</FormMessage>}
-            </FormItem>
+        <div>
+          <label htmlFor="caption" className="block text-sm font-medium text-light-1 mb-2">
+            Caption
+          </label>
+          <textarea
+            id="caption"
+            name="caption"
+            value={formData.caption}
+            onChange={handleChange}
+            className="w-full min-h-[80px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar"
+            placeholder="Write a caption..."
+          />
+          {errors.caption && (
+            <p className="text-sm text-red-500 mt-1">{errors.caption}</p>
           )}
-        </FormField>
+        </div>
 
-        <FormField name="file">
-          {({ error }) => (
-            <FormItem>
-              <FormLabel>Add Photos</FormLabel>
-              <FormControl>
-                <FileUploader
-                  fieldChange={() => {}} // File uploader handles its own state
-                  mediaUrl={post?.imageUrl || ""}
-                />
-              </FormControl>
-              {error && <FormMessage>{error}</FormMessage>}
-            </FormItem>
-          )}
-        </FormField>
+        <div>
+          <label className="block text-sm font-medium text-light-1 mb-2">
+            Add Photos
+          </label>
+          <FileUploader
+            fieldChange={() => {}} // File uploader handles its own state
+            mediaUrl={post?.imageUrl || ""}
+          />
+        </div>
 
-        <FormField name="location">
-          {({ error }) => (
-            <FormItem>
-              <FormLabel>Add Location</FormLabel>
-              <FormControl>
-                <SimpleInput
-                  type="text"
-                  value={form.values.location}
-                  onChange={(e) => form.setValue('location', e.target.value)}
-                  error={error}
-                />
-              </FormControl>
-              {error && <FormMessage>{error}</FormMessage>}
-            </FormItem>
-          )}
-        </FormField>
+        <div>
+          <label htmlFor="location" className="block text-sm font-medium text-light-1 mb-2">
+            Add Location
+          </label>
+          <input
+            type="text"
+            id="location"
+            name="location"
+            value={formData.location}
+            onChange={handleChange}
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Add location"
+          />
+        </div>
 
-        <FormField name="tags">
-          {({ error }) => (
-            <FormItem>
-              <FormLabel>
-                Add Tags (separated by comma " , ")
-              </FormLabel>
-              <FormControl>
-                <SimpleInput
-                  placeholder="Art, Expression, Learn"
-                  type="text"
-                  value={form.values.tags}
-                  onChange={(e) => form.setValue('tags', e.target.value)}
-                  error={error}
-                />
-              </FormControl>
-              {error && <FormMessage>{error}</FormMessage>}
-            </FormItem>
-          )}
-        </FormField>
+        <div>
+          <label htmlFor="tags" className="block text-sm font-medium text-light-1 mb-2">
+            Add Tags (separated by comma " , ")
+          </label>
+          <input
+            type="text"
+            id="tags"
+            name="tags"
+            value={formData.tags}
+            onChange={handleChange}
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Art, Expression, Learn"
+          />
+        </div>
 
         <div className="flex gap-4 items-center justify-end">
-          <SimpleButton
+          <button
             type="button"
-            variant="secondary"
-            onClick={() => navigate(-1)}>
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+          >
             Cancel
-          </SimpleButton>
-          <SimpleButton
+          </button>
+          <button
             type="submit"
-            className="whitespace-nowrap"
-            disabled={isLoadingCreate || isLoadingUpdate || form.isSubmitting}>
-            {(isLoadingCreate || isLoadingUpdate) && <Loader />}
-            {action} Post
-          </SimpleButton>
+            disabled={isLoadingCreate || isLoadingUpdate || isSubmitting}
+            className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+          >
+            {isLoadingCreate || isLoadingUpdate ? "Loading..." : `${action} Post`}
+          </button>
         </div>
       </div>
-    </Form>
+    </form>
   );
 };
 

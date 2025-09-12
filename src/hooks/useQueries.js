@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   createUserAccount,
   signInAccount,
@@ -25,13 +25,13 @@ import {
   deleteComment,
 } from '@/lib/services/api';
 
-// Simple axios-based hook for API calls
-const useAxiosCall = (apiFunction) => {
+// Simple hook for making API calls
+const useApiCall = (apiFunction) => {
   const [data, setData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const callApi = useCallback(async (...args) => {
+  const callApi = async (...args) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -45,7 +45,7 @@ const useAxiosCall = (apiFunction) => {
     } finally {
       setIsLoading(false);
     }
-  }, [apiFunction]);
+  };
 
   return { data, isLoading, error, callApi };
 };
@@ -54,41 +54,41 @@ const useAxiosCall = (apiFunction) => {
 // AUTH QUERIES
 // ============================================================
 
-export const useCreateUserAccount = () => useAxiosCall(createUserAccount);
-export const useSignInAccount = () => useAxiosCall(signInAccount);
-export const useSignOutAccount = () => useAxiosCall(signOutAccount);
+export const useCreateUserAccount = () => useApiCall(createUserAccount);
+export const useSignInAccount = () => useApiCall(signInAccount);
+export const useSignOutAccount = () => useApiCall(signOutAccount);
 
 // ============================================================
 // POST QUERIES
 // ============================================================
 
-export const useGetPosts = () => useAxiosCall(getInfinitePosts);
-export const useSearchPosts = (searchTerm) => useAxiosCall(() => searchPosts(searchTerm));
-export const useGetRecentPosts = () => useAxiosCall(getRecentPosts);
-export const useCreatePost = () => useAxiosCall(createPost);
-export const useGetPostById = (postId) => useAxiosCall(() => getPostById(postId));
-export const useGetUserPosts = (userId) => useAxiosCall(() => getUserPosts(userId));
-export const useUpdatePost = () => useAxiosCall(updatePost);
-export const useDeletePost = () => useAxiosCall(({ postId, imageId }) => deletePost(postId, imageId));
-export const useLikePost = () => useAxiosCall(({ postId, likesArray }) => likePost(postId, likesArray));
-export const useSavePost = () => useAxiosCall(({ userId, postId }) => savePost(userId, postId));
-export const useDeleteSavedPost = () => useAxiosCall(deleteSavedPost);
-export const useGetSavedPosts = () => useAxiosCall(getSavedPosts);
+export const useGetPosts = () => useApiCall(getInfinitePosts);
+export const useSearchPosts = (searchTerm) => useApiCall(() => searchPosts(searchTerm));
+export const useGetRecentPosts = () => useApiCall(getRecentPosts);
+export const useCreatePost = () => useApiCall(createPost);
+export const useGetPostById = (postId) => useApiCall(() => getPostById(postId));
+export const useGetUserPosts = (userId) => useApiCall(() => getUserPosts(userId));
+export const useUpdatePost = () => useApiCall(updatePost);
+export const useDeletePost = () => useApiCall(({ postId, imageId }) => deletePost(postId, imageId));
+export const useLikePost = () => useApiCall(({ postId, likesArray }) => likePost(postId, likesArray));
+export const useSavePost = () => useApiCall(({ userId, postId }) => savePost(userId, postId));
+export const useDeleteSavedPost = () => useApiCall(deleteSavedPost);
+export const useGetSavedPosts = () => useApiCall(getSavedPosts);
 
 // ============================================================
 // USER QUERIES
 // ============================================================
 
-export const useGetCurrentUser = () => useAxiosCall(getCurrentUser);
-export const useGetUsers = (limit) => useAxiosCall(() => getUsers(limit));
-export const useGetUserById = (userId) => useAxiosCall(() => getUserById(userId));
-export const useUpdateUser = () => useAxiosCall(updateUser);
+export const useGetCurrentUser = () => useApiCall(getCurrentUser);
+export const useGetUsers = (limit) => useApiCall(() => getUsers(limit));
+export const useGetUserById = (userId) => useApiCall(() => getUserById(userId));
+export const useUpdateUser = () => useApiCall(updateUser);
 
 // ============================================================
 // COMMENT QUERIES
 // ============================================================
 
-export const useGetComments = (postId) => useAxiosCall(() => getComments(postId));
-export const useCreateComment = () => useAxiosCall(({ postId, content }) => createComment(postId, content));
-export const useUpdateComment = () => useAxiosCall(({ commentId, content }) => updateComment(commentId, content));
-export const useDeleteComment = () => useAxiosCall(deleteComment);
+export const useGetComments = (postId) => useApiCall(() => getComments(postId));
+export const useCreateComment = () => useApiCall(({ postId, content }) => createComment(postId, content));
+export const useUpdateComment = () => useApiCall(({ commentId, content }) => updateComment(commentId, content));
+export const useDeleteComment = () => useApiCall(deleteComment);

@@ -1,53 +1,90 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/SimpleForm";
-import SimpleInput from "@/components/ui/SimpleInput";
-import SimpleButton from "@/components/ui/SimpleButton";
-import Loader from "@/components/shared/Loader";
-import { useToast } from "@/components/ui/SimpleToast";
-
-import { validateSignin } from "@/lib/validation/simple";
 import { useSignInAccount } from "@/hooks/useQueries";
 import { useUserContext } from "@/context/AuthContext";
-import { useSimpleForm } from "@/hooks/useSimpleForm";
 
 const SigninForm = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
-
-  // Query
   const { callApi: signInAccount, isLoading } = useSignInAccount();
 
-  const form = useSimpleForm({
-    initialValues: {
-      email: "",
-      password: "",
-    },
-    validate: validateSignin,
-    onSubmit: async (user) => {
-      try {
-        const session = await signInAccount(user);
-
-        if (!session) {
-          toast({ title: "Login failed. Please try again." });
-          return;
-        }
-
-        const isLoggedIn = await checkAuthUser();
-
-        if (isLoggedIn) {
-          form.reset();
-          navigate("/home");
-        } else {
-          toast({ title: "Login failed. Please try again." });
-        }
-      } catch (error) {
-        console.error('Sign in error:', error);
-        toast({ title: "An error occurred. Please try again." });
-      }
-    }
+  // Simple form state
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
   });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ""
+      }));
+    }
+  };
+
+  // Simple validation
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = "Email is invalid";
+    }
+    
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    } else if (formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const session = await signInAccount(formData);
+
+      if (!session) {
+        alert("Login failed. Please try again.");
+        return;
+      }
+
+      const isLoggedIn = await checkAuthUser();
+
+      if (isLoggedIn) {
+        setFormData({ email: "", password: "" });
+        navigate("/home");
+      } else {
+        alert("Login failed. Please try again.");
+      }
+    } catch (error) {
+      console.error('Sign in error:', error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="sm:w-420 flex-center flex-col">
@@ -60,62 +97,60 @@ const SigninForm = () => {
         Welcome back! Please enter your details.
       </p>
       
-      <Form onSubmit={form.handleSubmit}>
-        <div className="flex flex-col gap-5 w-full mt-4">
-          <FormField name="email">
-            {({ error }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <SimpleInput
-                    type="email"
-                    value={form.values.email}
-                    onChange={(e) => form.setValue('email', e.target.value)}
-                    error={error}
-                  />
-                </FormControl>
-                {error && <FormMessage>{error}</FormMessage>}
-              </FormItem>
-            )}
-          </FormField>
-
-          <FormField name="password">
-            {({ error }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <SimpleInput
-                    type="password"
-                    value={form.values.password}
-                    onChange={(e) => form.setValue('password', e.target.value)}
-                    error={error}
-                  />
-                </FormControl>
-                {error && <FormMessage>{error}</FormMessage>}
-              </FormItem>
-            )}
-          </FormField>
-
-          <SimpleButton type="submit" disabled={form.isSubmitting}>
-            {isLoading || isUserLoading ? (
-              <div className="flex-center gap-2">
-                <Loader /> Loading...
-              </div>
-            ) : (
-              "Log in"
-            )}
-          </SimpleButton>
-
-          <p className="text-small-regular text-light-2 text-center mt-2">
-            Don&apos;t have an account?
-            <Link
-              to="/sign-up"
-              className="text-primary-500 text-small-semibold ml-1">
-              Sign up
-            </Link>
-          </p>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full mt-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-light-1 mb-2">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Enter your email"
+          />
+          {errors.email && (
+            <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+          )}
         </div>
-      </Form>
+
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-light-1 mb-2">
+            Password
+          </label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            placeholder="Enter your password"
+          />
+          {errors.password && (
+            <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+          )}
+        </div>
+
+        <button
+          type="submit"
+          disabled={isSubmitting || isLoading || isUserLoading}
+          className="w-full h-10 bg-primary-500 text-white rounded-md font-medium hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoading || isUserLoading ? "Loading..." : "Log in"}
+        </button>
+
+        <p className="text-small-regular text-light-2 text-center mt-2">
+          Don&apos;t have an account?
+          <Link
+            to="/sign-up"
+            className="text-primary-500 text-small-semibold ml-1">
+            Sign up
+          </Link>
+        </p>
+      </form>
     </div>
   );
 };
