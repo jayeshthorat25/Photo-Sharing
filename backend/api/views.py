@@ -9,7 +9,8 @@ from django.shortcuts import get_object_or_404
 from .models import User, Post, Comment, SavedPost
 from .serializers import (
     UserRegistrationSerializer, UserSerializer, UserUpdateSerializer,
-    PostSerializer, PostCreateSerializer, CommentSerializer, SavedPostSerializer
+    PostSerializer, PostCreateSerializer, CommentSerializer, SavedPostSerializer,
+    SavedPostCreateSerializer
 )
 
 
@@ -221,8 +222,12 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class SavedPostListView(generics.ListCreateAPIView):
     """View for listing and creating saved posts"""
-    serializer_class = SavedPostSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return SavedPostCreateSerializer
+        return SavedPostSerializer
 
     def get_queryset(self):
         return SavedPost.objects.filter(user=self.request.user).select_related('post__user')

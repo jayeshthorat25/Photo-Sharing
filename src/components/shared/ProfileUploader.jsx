@@ -1,9 +1,10 @@
 import { useCallback, useState, useRef } from "react";
 
 import { convertFileToUrl } from "@/lib/utils";
+import { getImageUrl } from "@/lib/api";
 
 const ProfileUploader = ({ fieldChange, mediaUrl }) => {
-  const [fileUrl, setFileUrl] = useState(mediaUrl);
+  const [fileUrl, setFileUrl] = useState(getImageUrl(mediaUrl));
   const fileInputRef = useRef(null);
 
   const handleFileSelect = useCallback((selectedFiles) => {

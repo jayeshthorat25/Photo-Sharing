@@ -55,7 +55,7 @@ export const getUsers = async (limit) => {
   try {
     const params = limit ? { limit } : {};
     const response = await api.get('/api/auth/users/', { params });
-    return { documents: response.data };
+    return { documents: response.data.results || response.data };
   } catch (error) {
     console.error('Error getting users:', error);
     throw error;
@@ -130,7 +130,7 @@ export const createPost = async (post) => {
 export const getRecentPosts = async () => {
   try {
     const response = await api.get('/api/posts/recent/');
-    return { documents: response.data };
+    return { documents: response.data.results || response.data };
   } catch (error) {
     console.error('Error getting recent posts:', error);
     throw error;
@@ -142,7 +142,7 @@ export const getInfinitePosts = async ({ pageParam = 0 }) => {
     const response = await api.get('/api/posts/', {
       params: { offset: pageParam }
     });
-    return { documents: response.data };
+    return { documents: response.data.results || response.data };
   } catch (error) {
     console.error('Error getting infinite posts:', error);
     throw error;
@@ -154,7 +154,7 @@ export const searchPosts = async (searchTerm) => {
     const response = await api.get('/api/posts/search/', {
       params: { q: searchTerm }
     });
-    return { documents: response.data };
+    return { documents: response.data.results || response.data };
   } catch (error) {
     console.error('Error searching posts:', error);
     throw error;
@@ -214,9 +214,7 @@ export const deletePost = async (postId, _imageId) => {
 
 export const likePost = async (postId, likesArray) => {
   try {
-    const response = await api.post(`/api/posts/${postId}/like/`, {
-      likes: likesArray
-    });
+    const response = await api.post(`/api/posts/${postId}/like/`);
     return response.data;
   } catch (error) {
     console.error('Error liking post:', error);
@@ -228,7 +226,7 @@ export const getUserPosts = async (userId) => {
   try {
     if (!userId) throw new Error('User ID is required');
     const response = await api.get(`/api/users/${userId}/posts/`);
-    return { documents: response.data };
+    return { documents: response.data.results || response.data };
   } catch (error) {
     console.error('Error getting user posts:', error);
     throw error;
@@ -257,6 +255,16 @@ export const deleteSavedPost = async (savedRecordId) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting saved post:', error);
+    throw error;
+  }
+};
+
+export const getSavedPosts = async () => {
+  try {
+    const response = await api.get('/api/saves/');
+    return { documents: response.data.results || response.data };
+  } catch (error) {
+    console.error('Error getting saved posts:', error);
     throw error;
   }
 };

@@ -112,3 +112,15 @@ class SavedPostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
         return super().create(validated_data)
+
+
+class SavedPostCreateSerializer(serializers.ModelSerializer):
+    """Serializer for creating saved posts"""
+    
+    class Meta:
+        model = SavedPost
+        fields = ('post',)
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user
+        return super().create(validated_data)

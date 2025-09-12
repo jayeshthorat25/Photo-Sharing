@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 
 import SimpleButton from "../ui/SimpleButton";
+import { getImageUrl } from "@/lib/api";
 
 const UserCard = ({ user }) => {
   return (
     <Link to={`/profile/${user.id}`} className="user-card">
       <img
-        src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
+        src={getImageUrl(user.imageUrl) || "/assets/icons/profile-placeholder.svg"}
         alt="creator"
         className="rounded-full w-14 h-14"
       />

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 // import { useToast } from "@/components/ui/SimpleToast";
 import { Loader, PostCard, UserCard } from "@/components/shared";
 import { useGetRecentPosts, useGetUsers } from "@/hooks/useQueries";
@@ -9,12 +10,19 @@ const Home = () => {
     data: posts,
     isLoading: isPostLoading,
     error: isErrorPosts,
+    callApi: fetchPosts,
   } = useGetRecentPosts();
   const {
     data: creators,
     isLoading: isUserLoading,
     error: isErrorCreators,
+    callApi: fetchUsers,
   } = useGetUsers(10);
+
+  useEffect(() => {
+    fetchPosts();
+    fetchUsers();
+  }, [fetchPosts, fetchUsers]);
 
   if (isErrorPosts || isErrorCreators) {
     return (
@@ -38,7 +46,7 @@ const Home = () => {
             <Loader />
           ) : (
             <ul className="flex flex-col flex-1 gap-9 w-full ">
-              {posts?.documents.map((post) => (
+              {posts?.documents && Array.isArray(posts.documents) && posts.documents.map((post) => (
                 <li key={post.id} className="flex justify-center w-full">
                   <PostCard post={post} />
                 </li>
@@ -54,7 +62,7 @@ const Home = () => {
           <Loader />
         ) : (
           <ul className="grid 2xl:grid-cols-2 gap-6">
-            {creators?.documents.map((creator) => (
+            {creators?.documents && Array.isArray(creators.documents) && creators.documents.map((creator) => (
               <li key={creator?.id}>
                 <UserCard user={creator} />
               </li>
