@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
+from .utils import copy_file_to_frontend, delete_file_from_frontend
 
 
 class User(AbstractUser):
@@ -10,6 +11,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     bio = models.TextField(blank=True, max_length=500)
     image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -21,9 +23,31 @@ class User(AbstractUser):
 
     @property
     def imageUrl(self):
-        if self.image:
+        if self.image_path:
+            return self.image_path
+        elif self.image:
             return self.image.url
         return None
+
+    def save(self, *args, **kwargs):
+        # Handle image upload and copy to frontend
+        if self.image and hasattr(self.image, 'file'):
+            # Delete old image from frontend if exists
+            if self.image_path:
+                delete_file_from_frontend(self.image_path)
+            
+            # Copy new image to frontend
+            frontend_path = copy_file_to_frontend(self.image, 'profiles')
+            if frontend_path:
+                self.image_path = frontend_path
+        
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete image from frontend when user is deleted
+        if self.image_path:
+            delete_file_from_frontend(self.image_path)
+        super().delete(*args, **kwargs)
 
 
 class Post(models.Model):
@@ -31,6 +55,7 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     caption = models.TextField()
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)
+    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path
     location = models.CharField(max_length=255, blank=True)
     tags = models.CharField(max_length=500, blank=True)
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
@@ -45,13 +70,35 @@ class Post(models.Model):
 
     @property
     def imageUrl(self):
-        if self.image:
+        if self.image_path:
+            return self.image_path
+        elif self.image:
             return self.image.url
         return None
 
     @property
     def likes_count(self):
         return self.likes.count()
+
+    def save(self, *args, **kwargs):
+        # Handle image upload and copy to frontend
+        if self.image and hasattr(self.image, 'file'):
+            # Delete old image from frontend if exists
+            if self.image_path:
+                delete_file_from_frontend(self.image_path)
+            
+            # Copy new image to frontend
+            frontend_path = copy_file_to_frontend(self.image, 'posts')
+            if frontend_path:
+                self.image_path = frontend_path
+        
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete image from frontend when post is deleted
+        if self.image_path:
+            delete_file_from_frontend(self.image_path)
+        super().delete(*args, **kwargs)
 
 
 class Comment(models.Model):
