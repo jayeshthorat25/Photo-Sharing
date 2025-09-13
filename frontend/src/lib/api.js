@@ -5,6 +5,7 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0
 export const getImageUrl = (imageUrl) => {
   if (!imageUrl) return null;
   if (imageUrl.startsWith('http')) return imageUrl;
+  if (imageUrl.startsWith('/assets/images/')) return imageUrl; // Local frontend path
   return `${API_BASE_URL}${imageUrl}`;
 };
 

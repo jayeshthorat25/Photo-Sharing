@@ -21,6 +21,7 @@ const PostForm = ({ post, action }) => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -67,7 +68,7 @@ const PostForm = ({ post, action }) => {
           postId: post.id,
           imageId: post.imageId,
           imageUrl: post.imageUrl,
-          file: [], // Add empty file array for update
+          file: selectedFiles, // Pass selected files
         });
 
         if (updatedPost) {
@@ -82,7 +83,7 @@ const PostForm = ({ post, action }) => {
       const newPost = await createPost({
         ...formData,
         userId: user.id,
-        file: [], // Add empty file array for create
+        file: selectedFiles, // Pass selected files
       });
 
       if (newPost) {
@@ -123,7 +124,7 @@ const PostForm = ({ post, action }) => {
             Add Photos
           </label>
           <FileUploader
-            fieldChange={() => {}} // File uploader handles its own state
+            fieldChange={setSelectedFiles} // Pass files to form state
             mediaUrl={post?.imageUrl || ""}
           />
         </div>
