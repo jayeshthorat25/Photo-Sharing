@@ -2,11 +2,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { multiFormatDateString } from '@/lib/utils';
 import { useUserContext } from '@/context/AuthContext';
-import { useDeleteComment, useUpdateComment } from '@/hooks/useQueries';
+import { useDeleteComment, useUpdateComment, usePinComment } from '@/hooks/useQueries';
 import SimpleButton from '@/components/ui/SimpleButton';
-// Removed SimpleTextarea import - using simple HTML textarea instead
+import CommentOptionsMenu from '@/components/ui/CommentOptionsMenu';
 
-const Comment = ({ comment, onCommentUpdated }) => {
+const Comment = ({ comment, post, onCommentUpdated }) => {
   const { user } = useUserContext();
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
@@ -14,8 +14,15 @@ const Comment = ({ comment, onCommentUpdated }) => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { callApi: updateComment } = useUpdateComment();
   const { callApi: deleteComment } = useDeleteComment();
+  const { callApi: pinComment } = usePinComment();
 
-  const isOwner = user.id === comment.user.id;
+  // Safety check for user object
+  if (!user || !user.id) {
+    return null;
+  }
+
+  const isOwner = String(user.id) === String(comment.user.id);
+  const isPostOwner = String(user.id) === String(post?.user?.id);
 
   const handleUpdateComment = async () => {
     if (editContent.trim() && editContent !== comment.content) {
@@ -24,7 +31,6 @@ const Comment = ({ comment, onCommentUpdated }) => {
         await updateComment({ commentId: comment.id, content: editContent.trim() });
         setIsEditing(false);
         onCommentUpdated?.();
-        console.log('Comment updated successfully'); // Debug log
       } catch (error) {
         console.error('Error updating comment:', error);
         alert('Failed to update comment. Please try again.');
@@ -37,24 +43,31 @@ const Comment = ({ comment, onCommentUpdated }) => {
   };
 
   const handleDeleteComment = async () => {
-    if (window.confirm('Are you sure you want to delete this comment?')) {
-      setIsDeleting(true);
-      try {
-        await deleteComment(comment.id);
-        onCommentUpdated?.();
-        console.log('Comment deleted successfully'); // Debug log
-      } catch (error) {
-        console.error('Error deleting comment:', error);
-        alert('Failed to delete comment. Please try again.');
-      } finally {
-        setIsDeleting(false);
-      }
+    setIsDeleting(true);
+    try {
+      await deleteComment(comment.id);
+      onCommentUpdated?.();
+    } catch (error) {
+      console.error('Error deleting comment:', error);
+      alert('Failed to delete comment. Please try again.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   const handleCancelEdit = () => {
     setEditContent(comment.content);
     setIsEditing(false);
+  };
+
+  const handlePinComment = async () => {
+    try {
+      await pinComment(comment.id);
+      onCommentUpdated?.();
+    } catch (error) {
+      console.error('Error pinning comment:', error);
+      alert('Failed to pin/unpin comment. Please try again.');
+    }
   };
 
   return (
@@ -68,70 +81,67 @@ const Comment = ({ comment, onCommentUpdated }) => {
       </Link>
       
       <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1">
-          <Link to={`/profile/${comment.user.id}`}>
-            <p className="small-semibold text-light-1">{comment.user.name}</p>
-          </Link>
-          <p className="tiny-medium text-light-3">
-            {multiFormatDateString(comment.created_at)}
-          </p>
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <Link to={`/profile/${comment.user.id}`}>
+              <p className={`base-semibold ${isOwner ? 'text-primary-500' : 'text-light-1'}`}>
+                {comment.user.name}
+              </p>
+            </Link>
+            <p className="small-medium text-light-3">
+              {multiFormatDateString(comment.created_at)}
+            </p>
+            {comment.pinned && (
+              <span className="small-medium text-primary-500 font-semibold">
+                📌 Pinned
+              </span>
+            )}
+            {comment.is_edited && (
+              <span className="small-medium text-light-4 italic">
+                (edited)
+              </span>
+            )}
+          </div>
+          
+          <CommentOptionsMenu
+            isOwner={isOwner}
+            isPostOwner={isPostOwner}
+            isPinned={comment.pinned}
+            isEditing={isEditing}
+            onEdit={() => setIsEditing(true)}
+            onDelete={handleDeleteComment}
+            onPin={handlePinComment}
+            onCancelEdit={handleCancelEdit}
+          />
         </div>
         
         {isEditing ? (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <textarea
               value={editContent}
               onChange={(e) => setEditContent(e.target.value)}
-              className="w-full min-h-[60px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full min-h-[80px] px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar resize-none base-regular"
               placeholder="Edit your comment..."
             />
-            <div className="flex gap-2">
-              <SimpleButton
+            <div className="flex gap-3">
+              <button
                 onClick={handleUpdateComment}
-                size="sm"
-                className="px-3 py-1"
-                disabled={isUpdating}
+                className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed base-medium transition-colors"
+                disabled={isUpdating || !editContent.trim()}
               >
                 {isUpdating ? 'Saving...' : 'Save'}
-              </SimpleButton>
-              <SimpleButton
+              </button>
+              <button
                 onClick={handleCancelEdit}
-                variant="outline"
-                size="sm"
-                className="px-3 py-1"
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed base-medium transition-colors"
                 disabled={isUpdating}
               >
                 Cancel
-              </SimpleButton>
+              </button>
             </div>
           </div>
         ) : (
-          <div>
-            <p className="small-regular text-light-1 mb-2">{comment.content}</p>
-            
-            {isOwner && (
-              <div className="flex gap-3">
-                <SimpleButton
-                  onClick={() => setIsEditing(true)}
-                  variant="ghost"
-                  size="sm"
-                  className="p-0 h-auto text-light-3 hover:text-light-1"
-                  disabled={isDeleting}
-                >
-                  Edit
-                </SimpleButton>
-                <SimpleButton
-                  onClick={handleDeleteComment}
-                  variant="ghost"
-                  size="sm"
-                  className="p-0 h-auto text-red hover:text-red/80"
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? 'Deleting...' : 'Delete'}
-                </SimpleButton>
-              </div>
-            )}
-          </div>
+          <p className="base-regular text-light-1">{comment.content}</p>
         )}
       </div>
     </div>

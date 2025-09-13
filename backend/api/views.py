@@ -101,7 +101,7 @@ class UserDetailView(generics.RetrieveAPIView):
     lookup_field = 'id'
 
     def get_queryset(self):
-        return User.objects.all()
+        return User.objects.prefetch_related('posts__likes', 'posts__comments').all()
 
 
 class PostListView(generics.ListCreateAPIView):
@@ -146,7 +146,18 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
         return PostSerializer
 
     def perform_update(self, serializer):
+        # Only allow post owners to update their posts
+        if serializer.instance.user != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only update your own posts.")
         serializer.save(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        # Only allow post owners to delete their posts
+        if instance.user != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only delete your own posts.")
+        instance.delete()
 
 
 class PostSearchView(generics.ListAPIView):
@@ -218,6 +229,45 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Comment.objects.filter(user=self.request.user)
+
+
+class CommentPinView(APIView):
+    """View for pinning/unpinning comments"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, comment_id):
+        try:
+            comment = Comment.objects.get(id=comment_id)
+            
+            # Check if user is the owner of the post
+            if comment.post.user != request.user:
+                return Response(
+                    {'error': 'Only the post owner can pin/unpin comments'}, 
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            # If pinning a comment, unpin all other comments on this post first
+            if not comment.pinned:
+                Comment.objects.filter(post=comment.post, pinned=True).update(pinned=False)
+                comment.pinned = True
+                comment.save()
+                message = 'Comment pinned successfully. Other pinned comments have been unpinned.'
+            else:
+                # If unpinning, just unpin this comment
+                comment.pinned = False
+                comment.save()
+                message = 'Comment unpinned successfully.'
+            
+            return Response({
+                'message': message,
+                'pinned': comment.pinned
+            })
+            
+        except Comment.DoesNotExist:
+            return Response(
+                {'error': 'Comment not found'}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class SavedPostListView(generics.ListCreateAPIView):

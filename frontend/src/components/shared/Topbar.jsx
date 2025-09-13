@@ -9,7 +9,11 @@ const Topbar = () => {
   const { user } = useUserContext();
   const { callApi: signOut } = useSignOutAccount();
 
-  // Note: Sign out will be handled by the auth context
+  const handleSignOut = () => {
+    if (window.confirm('Are you sure you want to logout? You will need to sign in again to access your account.')) {
+      signOut();
+    }
+  };
 
   return (
     <section className="topbar">
@@ -26,8 +30,8 @@ const Topbar = () => {
         <div className="flex gap-4">
           <SimpleButton
             variant="ghost"
-            className="shad-button_ghost"
-            onClick={() => signOut()}>
+            className="custom-button-ghost"
+            onClick={handleSignOut}>
             <img src="/assets/icons/logout.svg" alt="logout" />
           </SimpleButton>
           <Link to={`/profile/${user.id}`} className="flex-center gap-3">

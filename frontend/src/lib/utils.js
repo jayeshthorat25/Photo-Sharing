@@ -1,7 +1,3 @@
-export function cn(...inputs) {
-  return inputs.filter(Boolean).join(' ');
-}
-
 export const convertFileToUrl = (file) => URL.createObjectURL(file);
 
 export function formatDateString(dateString) {

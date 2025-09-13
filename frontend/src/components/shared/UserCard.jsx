@@ -5,7 +5,7 @@ import { getImageUrl } from "@/lib/api";
 
 const UserCard = ({ user }) => {
   return (
-    <Link to={`/profile/${user.id}`} className="user-card">
+    <div className="user-card">
       <img
         src={getImageUrl(user.imageUrl) || "/assets/icons/profile-placeholder.svg"}
         alt="creator"
@@ -21,10 +21,12 @@ const UserCard = ({ user }) => {
         </p>
       </div>
 
-      <SimpleButton type="button" size="sm" className="px-5">
-        Follow
-      </SimpleButton>
-    </Link>
+      <Link to={`/profile/${user.id}`}>
+        <SimpleButton type="button" size="sm" className="px-5">
+          View Profile
+        </SimpleButton>
+      </Link>
+    </div>
   );
 };
 

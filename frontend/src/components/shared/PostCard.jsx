@@ -1,14 +1,41 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import { PostStats } from "@/components/shared";
 import { multiFormatDateString } from "@/lib/utils";
 import { useUserContext } from "@/context/AuthContext";
 import { getImageUrl } from "@/lib/api";
+import { useDeletePost } from "@/hooks/useQueries";
+import PostOptionsMenu from "@/components/ui/PostOptionsMenu";
 
 const PostCard = ({ post }) => {
   const { user } = useUserContext();
+  const navigate = useNavigate();
+  const { callApi: deletePost } = useDeletePost();
 
   if (!post.user) return;
+
+  const handleDeletePost = async (e) => {
+    e.preventDefault(); // Prevent navigation to post details
+    e.stopPropagation();
+    
+
+    // Double-check ownership before allowing deletion
+    if (String(user?.id) !== String(post?.user?.id)) {
+      alert('You can only delete your own posts.');
+      return;
+    }
+    
+    if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+      try {
+        await deletePost({ postId: post.id, imageId: post?.imageId });
+        // Optionally refresh the page or navigate away
+        window.location.reload();
+      } catch (error) {
+        console.error('Error deleting post:', error);
+        alert('Failed to delete post. Please try again.');
+      }
+    }
+  };
 
   return (
     <div className="post-card">
@@ -41,21 +68,19 @@ const PostCard = ({ post }) => {
           </div>
         </div>
 
-        <Link
-          to={`/update-post/${post.id}`}
-          className={`${user.id !== post.user.id && "hidden"}`}>
-          <img
-            src={"/assets/icons/edit.svg"}
-            alt="edit"
-            width={20}
-            height={20}
-          />
-        </Link>
+        <PostOptionsMenu
+          isOwner={String(user.id) === String(post.user.id)}
+          postId={post.id}
+          onDelete={handleDeletePost}
+        />
       </div>
 
       <Link to={`/posts/${post.id}`}>
         <div className="small-medium lg:base-medium py-5">
-          <p>{post.caption}</p>
+          <p>
+            {post.caption}
+            {post.is_edited && <span className="tiny-medium text-light-4 italic ml-2">(edited)</span>}
+          </p>
           <ul className="flex gap-1 mt-2">
             {post.tags && (
               <li className="text-light-3 small-regular">

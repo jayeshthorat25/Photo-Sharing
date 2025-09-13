@@ -15,10 +15,13 @@ const LeftSidebar = () => {
 
   const handleSignOut = async (e) => {
     e.preventDefault();
-    signOut();
-    setIsAuthenticated(false);
-    setUser(INITIAL_USER);
-    navigate("/");
+    
+    if (window.confirm('Are you sure you want to logout? You will need to sign in again to access your account.')) {
+      signOut();
+      setIsAuthenticated(false);
+      setUser(INITIAL_USER);
+      navigate("/");
+    }
   };
 
   return (
@@ -81,7 +84,7 @@ const LeftSidebar = () => {
 
       <SimpleButton
         variant="ghost"
-        className="shad-button_ghost"
+        className="custom-button-ghost"
         onClick={(e) => handleSignOut(e)}>
         <img src="/assets/icons/logout.svg" alt="logout" />
         <p className="small-medium lg:base-medium">Logout</p>

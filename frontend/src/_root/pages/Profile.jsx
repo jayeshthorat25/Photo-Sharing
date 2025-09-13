@@ -57,22 +57,40 @@ const Profile = () => {
             </div>
 
             <div className="flex gap-8 mt-10 items-center justify-center xl:justify-start flex-wrap z-20">
-              <StatBlock value={currentUser.posts.length} label="Posts" />
-              <StatBlock value={20} label="Followers" />
-              <StatBlock value={20} label="Following" />
+              <StatBlock value={currentUser.posts?.length || 0} label="Posts" />
             </div>
 
             <p className="small-medium md:base-medium text-center xl:text-left mt-7 max-w-screen-sm">
               {currentUser.bio}
             </p>
+            
+            {(currentUser.location || currentUser.website) && (
+              <div className="flex flex-col gap-2 mt-4 text-center xl:text-left">
+                {currentUser.location && (
+                  <p className="small-regular text-light-3">
+                    📍 {currentUser.location}
+                  </p>
+                )}
+                {currentUser.website && (
+                  <a 
+                    href={currentUser.website} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="small-regular text-primary-500 hover:text-primary-400"
+                  >
+                    🔗 {currentUser.website}
+                  </a>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-center gap-4">
-            <div className={`${user.id !== currentUser.$id && "hidden"}`}>
+            <div className={`${user.id !== currentUser.id && "hidden"}`}>
               <Link
-                to={`/update-profile/${currentUser.$id}`}
+                to={`/update-profile/${currentUser.id}`}
                 className={`h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg ${
-                  user.id !== currentUser.$id && "hidden"
+                  user.id !== currentUser.id && "hidden"
                 }`}>
                 <img
                   src={"/assets/icons/edit.svg"}
@@ -85,16 +103,11 @@ const Profile = () => {
                 </p>
               </Link>
             </div>
-            <div className={`${user.id === id && "hidden"}`}>
-              <SimpleButton type="button" className="px-8">
-                Follow
-              </SimpleButton>
-            </div>
           </div>
         </div>
       </div>
 
-      {currentUser.$id === user.id && (
+      {currentUser.id === user.id && (
         <div className="flex max-w-5xl w-full">
           <Link
             to={`/profile/${id}`}
@@ -128,9 +141,9 @@ const Profile = () => {
       <Routes>
         <Route
           index
-          element={<GridPostList posts={currentUser.posts} showUser={false} />}
+          element={<GridPostList posts={currentUser.posts || []} showUser={false} />}
         />
-        {currentUser.$id === user.id && (
+        {currentUser.id === user.id && (
           <Route path="/liked-posts" element={<LikedPosts />} />
         )}
       </Routes>

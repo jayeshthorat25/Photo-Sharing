@@ -10,6 +10,8 @@ class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
     email = models.EmailField(unique=True)
     bio = models.TextField(blank=True, max_length=500)
+    location = models.CharField(max_length=255, blank=True)
+    website = models.URLField(blank=True)
     image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
     image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path
     created_at = models.DateTimeField(auto_now_add=True)
@@ -106,11 +108,12 @@ class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     content = models.TextField()
+    pinned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['-pinned', '-created_at']
 
     def __str__(self):
         return f"{self.user.username} - {self.content[:50]}"
