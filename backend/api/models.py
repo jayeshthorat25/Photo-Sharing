@@ -12,8 +12,7 @@ class User(AbstractUser):
     bio = models.TextField(blank=True, max_length=500)
     location = models.CharField(max_length=255, blank=True)
     website = models.URLField(blank=True)
-    image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
-    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path
+    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path only
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -25,21 +24,17 @@ class User(AbstractUser):
 
     @property
     def imageUrl(self):
-        if self.image_path:
-            return self.image_path
-        elif self.image:
-            return self.image.url
-        return None
+        return self.image_path
 
     def save(self, *args, **kwargs):
         # Handle image upload and copy to frontend
-        if self.image and hasattr(self.image, 'file'):
+        if hasattr(self, '_image_file') and self._image_file:
             # Delete old image from frontend if exists
             if self.image_path:
                 delete_file_from_frontend(self.image_path)
             
             # Copy new image to frontend
-            frontend_path = copy_file_to_frontend(self.image, 'profiles')
+            frontend_path = copy_file_to_frontend(self._image_file, 'profiles')
             if frontend_path:
                 self.image_path = frontend_path
         
@@ -56,8 +51,7 @@ class Post(models.Model):
     """Post model for social media posts"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     caption = models.TextField()
-    image = models.ImageField(upload_to='post_images/', blank=True, null=True)
-    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path
+    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path only
     location = models.CharField(max_length=255, blank=True)
     tags = models.CharField(max_length=500, blank=True)
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
@@ -72,11 +66,7 @@ class Post(models.Model):
 
     @property
     def imageUrl(self):
-        if self.image_path:
-            return self.image_path
-        elif self.image:
-            return self.image.url
-        return None
+        return self.image_path
 
     @property
     def likes_count(self):
@@ -84,13 +74,13 @@ class Post(models.Model):
 
     def save(self, *args, **kwargs):
         # Handle image upload and copy to frontend
-        if self.image and hasattr(self.image, 'file'):
+        if hasattr(self, '_image_file') and self._image_file:
             # Delete old image from frontend if exists
             if self.image_path:
                 delete_file_from_frontend(self.image_path)
             
             # Copy new image to frontend
-            frontend_path = copy_file_to_frontend(self.image, 'posts')
+            frontend_path = copy_file_to_frontend(self._image_file, 'posts')
             if frontend_path:
                 self.image_path = frontend_path
         
