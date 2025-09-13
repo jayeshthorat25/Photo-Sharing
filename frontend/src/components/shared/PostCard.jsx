@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import { PostStats } from "@/components/shared";
 import { multiFormatDateString } from "@/lib/utils";
@@ -6,11 +7,13 @@ import { useUserContext } from "@/context/AuthContext";
 import { getImageUrl } from "@/lib/api";
 import { useDeletePost } from "@/hooks/useQueries";
 import PostOptionsMenu from "@/components/ui/PostOptionsMenu";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 const PostCard = ({ post }) => {
   const { user } = useUserContext();
   const navigate = useNavigate();
   const { callApi: deletePost } = useDeletePost();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   if (!post.user) return;
 
@@ -18,22 +21,23 @@ const PostCard = ({ post }) => {
     e.preventDefault(); // Prevent navigation to post details
     e.stopPropagation();
     
-
     // Double-check ownership before allowing deletion
     if (String(user?.id) !== String(post?.user?.id)) {
       alert('You can only delete your own posts.');
       return;
     }
     
-    if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-      try {
-        await deletePost({ postId: post.id, imageId: post?.imageId });
-        // Optionally refresh the page or navigate away
-        window.location.reload();
-      } catch (error) {
-        console.error('Error deleting post:', error);
-        alert('Failed to delete post. Please try again.');
-      }
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deletePost({ postId: post.id, imageId: post?.imageId });
+      // Optionally refresh the page or navigate away
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post. Please try again.');
     }
   };
 
@@ -112,6 +116,17 @@ const PostCard = ({ post }) => {
           {post.comments_count || 0} comments
         </span>
       </div>
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 };

@@ -1,9 +1,11 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import SimpleButton from "@/components/ui/SimpleButton";
 import { Loader } from "@/components/shared";
 import { GridPostList, PostStats, CommentSection } from "@/components/shared";
 import PostOptionsMenu from "@/components/ui/PostOptionsMenu";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
 import {
   useGetPostById,
@@ -18,6 +20,7 @@ const PostDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { user } = useUserContext();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { data: post, isLoading, error } = useGetPostById(id);
   const { data: userPosts, isLoading: isUserPostLoading } = useGetUserPosts(
@@ -31,21 +34,22 @@ const PostDetails = () => {
   );
 
   const handleDeletePost = async () => {
-
     // Double-check ownership before allowing deletion
     if (String(user?.id) !== String(post?.user?.id)) {
       alert('You can only delete your own posts.');
       return;
     }
 
-    if (window.confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-      try {
-        await deletePost({ postId: id, imageId: post?.imageId });
-        navigate(-1);
-      } catch (error) {
-        console.error('Error deleting post:', error);
-        alert('Failed to delete post. Please try again.');
-      }
+    setShowDeleteModal(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    try {
+      await deletePost({ postId: id, imageId: post?.imageId });
+      navigate(-1);
+    } catch (error) {
+      console.error('Error deleting post:', error);
+      alert('Failed to delete post. Please try again.');
     }
   };
 
@@ -172,6 +176,17 @@ const PostDetails = () => {
           <GridPostList posts={relatedPosts} />
         )}
       </div>
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Post"
+        message="Are you sure you want to delete this post? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 };

@@ -140,6 +140,16 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Post.objects.select_related('user').prefetch_related('likes', 'comments')
 
+
+class PublicPostDetailView(generics.RetrieveAPIView):
+    """View for public post detail (for shared posts)"""
+    serializer_class = PostSerializer
+    permission_classes = [permissions.AllowAny]
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        return Post.objects.select_related('user').prefetch_related('likes', 'comments')
+
     def get_serializer_class(self):
         if self.request.method in ['PATCH', 'PUT']:
             return PostCreateSerializer
@@ -200,6 +210,16 @@ class UserPostsView(generics.ListAPIView):
     """View for user's posts"""
     serializer_class = PostSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('likes', 'comments')
+
+
+class PublicUserPostsView(generics.ListAPIView):
+    """View for public user's posts (for shared posts)"""
+    serializer_class = PostSerializer
+    permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']

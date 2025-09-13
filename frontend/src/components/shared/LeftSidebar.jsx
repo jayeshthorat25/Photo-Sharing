@@ -1,8 +1,10 @@
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import { sidebarLinks } from "@/constants";
 import { Loader } from "@/components/shared";
 import SimpleButton from "@/components/ui/SimpleButton";
+import ConfirmationModal from "@/components/ui/ConfirmationModal";
 import { useSignOutAccount } from "@/hooks/useQueries";
 import { useUserContext, INITIAL_USER } from "@/context/AuthContext";
 
@@ -10,18 +12,20 @@ const LeftSidebar = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { user, setUser, setIsAuthenticated, isLoading } = useUserContext();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const { callApi: signOut } = useSignOutAccount();
 
   const handleSignOut = async (e) => {
     e.preventDefault();
-    
-    if (window.confirm('Are you sure you want to logout? You will need to sign in again to access your account.')) {
-      signOut();
-      setIsAuthenticated(false);
-      setUser(INITIAL_USER);
-      navigate("/");
-    }
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = async () => {
+    signOut();
+    setIsAuthenticated(false);
+    setUser(INITIAL_USER);
+    navigate("/");
   };
 
   return (
@@ -89,6 +93,16 @@ const LeftSidebar = () => {
         <img src="/assets/icons/logout.svg" alt="logout" />
         <p className="small-medium lg:base-medium">Logout</p>
       </SimpleButton>
+
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="Logout"
+        message="Are you sure you want to logout? You will need to sign in again to access your account."
+        confirmText="Logout"
+        cancelText="Cancel"
+      />
     </nav>
   );
 };

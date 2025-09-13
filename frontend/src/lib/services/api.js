@@ -174,6 +174,17 @@ export const getPostById = async (postId) => {
   }
 };
 
+export const getPublicPostById = async (postId) => {
+  try {
+    if (!postId) throw new Error('Post ID is required');
+    const response = await api.get(`/api/posts/public/${postId}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error getting public post by ID:', error);
+    throw error;
+  }
+};
+
 export const updatePost = async (post) => {
   try {
     const formData = new FormData();
@@ -231,6 +242,17 @@ export const getUserPosts = async (userId) => {
     return { documents: response.data.results || response.data };
   } catch (error) {
     console.error('Error getting user posts:', error);
+    throw error;
+  }
+};
+
+export const getPublicUserPosts = async (userId) => {
+  try {
+    if (!userId) throw new Error('User ID is required');
+    const response = await api.get(`/api/users/public/${userId}/posts/`);
+    return { documents: response.data.results || response.data };
+  } catch (error) {
+    console.error('Error getting public user posts:', error);
     throw error;
   }
 };

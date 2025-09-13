@@ -39,17 +39,17 @@ const ToastContainer = ({ toasts, dismiss }) => {
 
 const Toast = ({ toast, onDismiss }) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-md p-4 shadow-lg max-w-sm">
+    <div className="bg-dark-2 border border-dark-4 rounded-lg p-4 shadow-lg max-w-sm">
       <div className="flex justify-between items-start">
         <div>
-          <div className="text-sm font-semibold text-gray-900">{toast.title}</div>
+          <div className="text-sm font-semibold text-light-1">{toast.title}</div>
           {toast.description && (
-            <div className="text-sm text-gray-600 mt-1">{toast.description}</div>
+            <div className="text-sm text-light-3 mt-1">{toast.description}</div>
           )}
         </div>
         <button
           onClick={onDismiss}
-          className="text-gray-400 hover:text-gray-600 ml-2"
+          className="text-light-4 hover:text-light-1 ml-2 text-lg font-bold"
         >
           ×
         </button>

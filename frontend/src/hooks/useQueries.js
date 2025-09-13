@@ -7,8 +7,10 @@ import {
   getUsers,
   createPost,
   getPostById,
+  getPublicPostById,
   updatePost,
   getUserPosts,
+  getPublicUserPosts,
   deletePost,
   likePost,
   getUserById,
@@ -83,8 +85,20 @@ export const useGetPostById = (postId) => {
   }, [postId]);
   return useApiCall(apiFunction, !!postId); // Auto-fetch if postId exists
 };
+
+export const useGetPublicPostById = (postId) => {
+  const apiFunction = useCallback(() => {
+    return getPublicPostById(postId);
+  }, [postId]);
+  return useApiCall(apiFunction, !!postId); // Auto-fetch if postId exists
+};
 export const useGetUserPosts = (userId) => {
   const apiFunction = useCallback(() => getUserPosts(userId), [userId]);
+  return useApiCall(apiFunction, !!userId); // Auto-fetch if userId exists
+};
+
+export const useGetPublicUserPosts = (userId) => {
+  const apiFunction = useCallback(() => getPublicUserPosts(userId), [userId]);
   return useApiCall(apiFunction, !!userId); // Auto-fetch if userId exists
 };
 export const useUpdatePost = () => useApiCall(updatePost);
