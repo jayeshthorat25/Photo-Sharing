@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 from .models import User, Post, Comment, SavedPost
 from .serializers import (
     UserRegistrationSerializer, UserSerializer, UserUpdateSerializer,
-    PostSerializer, PostCreateSerializer, CommentSerializer, SavedPostSerializer,
+    PostSerializer, PostListSerializer, PostCreateSerializer, PostUpdateSerializer, CommentSerializer, SavedPostSerializer,
     SavedPostCreateSerializer
 )
 
@@ -111,12 +111,12 @@ class PostListView(generics.ListCreateAPIView):
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return PostCreateSerializer
-        return PostSerializer
+        return PostListSerializer
 
     def get_queryset(self):
         offset = int(self.request.query_params.get('offset', 0))
         limit = 20
-        return Post.objects.select_related('user').prefetch_related('likes', 'comments')[offset:offset+limit]
+        return Post.objects.select_related('user').prefetch_related('comments')[offset:offset+limit]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -124,11 +124,11 @@ class PostListView(generics.ListCreateAPIView):
 
 class RecentPostsView(generics.ListAPIView):
     """View for recent posts"""
-    serializer_class = PostSerializer
+    serializer_class = PostListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Post.objects.select_related('user').prefetch_related('likes', 'comments')[:10]
+        return Post.objects.select_related('user').prefetch_related('comments')[:10]
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -140,6 +140,25 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Post.objects.select_related('user').prefetch_related('likes', 'comments')
 
+    def get_serializer_class(self):
+        if self.request.method in ['PATCH', 'PUT']:
+            return PostUpdateSerializer
+        return PostSerializer
+
+    def perform_update(self, serializer):
+        # Only allow post owners to update their posts
+        if serializer.instance.user != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only update your own posts.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Only allow post owners to delete their posts
+        if instance.user != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("You can only delete your own posts.")
+        instance.delete()
+
 
 class PublicPostDetailView(generics.RetrieveAPIView):
     """View for public post detail (for shared posts)"""
@@ -150,29 +169,10 @@ class PublicPostDetailView(generics.RetrieveAPIView):
     def get_queryset(self):
         return Post.objects.select_related('user').prefetch_related('likes', 'comments')
 
-    def get_serializer_class(self):
-        if self.request.method in ['PATCH', 'PUT']:
-            return PostCreateSerializer
-        return PostSerializer
-
-    def perform_update(self, serializer):
-        # Only allow post owners to update their posts
-        if serializer.instance.user != self.request.user:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("You can only update your own posts.")
-        serializer.save(user=self.request.user)
-
-    def perform_destroy(self, instance):
-        # Only allow post owners to delete their posts
-        if instance.user != self.request.user:
-            from rest_framework.exceptions import PermissionDenied
-            raise PermissionDenied("You can only delete your own posts.")
-        instance.delete()
-
 
 class PostSearchView(generics.ListAPIView):
     """View for searching posts"""
-    serializer_class = PostSerializer
+    serializer_class = PostListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -208,22 +208,22 @@ def like_post(request, post_id):
 
 class UserPostsView(generics.ListAPIView):
     """View for user's posts"""
-    serializer_class = PostSerializer
+    serializer_class = PostListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
-        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('likes', 'comments')
+        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments')
 
 
 class PublicUserPostsView(generics.ListAPIView):
     """View for public user's posts (for shared posts)"""
-    serializer_class = PostSerializer
+    serializer_class = PostListSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
-        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('likes', 'comments')
+        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments')
 
 
 class CommentListView(generics.ListCreateAPIView):
@@ -293,6 +293,7 @@ class CommentPinView(APIView):
 class SavedPostListView(generics.ListCreateAPIView):
     """View for listing and creating saved posts"""
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None  # Disable pagination for now, but we could add it later
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -300,7 +301,7 @@ class SavedPostListView(generics.ListCreateAPIView):
         return SavedPostSerializer
 
     def get_queryset(self):
-        return SavedPost.objects.filter(user=self.request.user).select_related('post__user')
+        return SavedPost.objects.filter(user=self.request.user).select_related('post__user').order_by('-created_at')
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

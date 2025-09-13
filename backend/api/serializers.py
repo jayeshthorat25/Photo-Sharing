@@ -55,6 +55,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating user profile"""
     imageUrl = serializers.ReadOnlyField()
+    image = serializers.ImageField(write_only=True, required=False)
 
     class Meta:
         model = User
@@ -66,7 +67,8 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         instance.location = validated_data.get('location', instance.location)
         instance.website = validated_data.get('website', instance.website)
         if 'image' in validated_data:
-            instance.image = validated_data['image']
+            # Store the image file temporarily for processing in save method
+            instance._image_file = validated_data['image']
         instance.save()
         return instance
 
@@ -101,15 +103,71 @@ class PostSerializer(serializers.ModelSerializer):
         return time_diff.total_seconds() > 1  # More than 1 second difference
 
 
+class PostListSerializer(serializers.ModelSerializer):
+    """Lightweight serializer for post lists"""
+    user = serializers.SerializerMethodField()
+    imageUrl = serializers.ReadOnlyField()
+    likes_count = serializers.ReadOnlyField()
+    comments_count = serializers.ReadOnlyField()
+    is_edited = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Post
+        fields = ('id', 'user', 'caption', 'imageUrl', 'location', 'tags', 
+                 'likes_count', 'comments_count', 'is_edited', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'created_at', 'updated_at')
+
+    def get_user(self, obj):
+        """Return lightweight user data"""
+        return {
+            'id': obj.user.id,
+            'name': obj.user.name,
+            'username': obj.user.username,
+            'imageUrl': obj.user.imageUrl,
+        }
+
+    def get_comments_count(self, obj):
+        return obj.comments.count()
+
+    def get_is_edited(self, obj):
+        """Check if post has been edited"""
+        time_diff = obj.updated_at - obj.created_at
+        return time_diff.total_seconds() > 1  # More than 1 second difference
+
+
 class PostCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating posts"""
+    image = serializers.ImageField(write_only=True, required=False)
+    
     class Meta:
         model = Post
         fields = ('caption', 'image', 'location', 'tags')
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
+        # Store the image file temporarily for processing in save method
+        if 'image' in validated_data:
+            image_file = validated_data.pop('image')
+            post = super().create(validated_data)
+            post._image_file = image_file
+            post.save()
+            return post
         return super().create(validated_data)
+
+
+class PostUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for updating posts"""
+    image = serializers.ImageField(write_only=True, required=False)
+    
+    class Meta:
+        model = Post
+        fields = ('caption', 'image', 'location', 'tags')
+
+    def update(self, instance, validated_data):
+        # Store the image file temporarily for processing in save method
+        if 'image' in validated_data:
+            instance._image_file = validated_data.pop('image')
+        return super().update(instance, validated_data)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -136,12 +194,31 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class SavedPostSerializer(serializers.ModelSerializer):
     """Serializer for saved posts"""
-    post = PostSerializer(read_only=True)
+    post = serializers.SerializerMethodField()
 
     class Meta:
         model = SavedPost
         fields = ('id', 'post', 'created_at')
         read_only_fields = ('id', 'created_at')
+
+    def get_post(self, obj):
+        """Return lightweight post data for saved posts"""
+        post = obj.post
+        return {
+            'id': post.id,
+            'caption': post.caption,
+            'imageUrl': post.imageUrl,
+            'location': post.location,
+            'tags': post.tags,
+            'created_at': post.created_at,
+            'updated_at': post.updated_at,
+            'user': {
+                'id': post.user.id,
+                'name': post.user.name,
+                'username': post.user.username,
+                'imageUrl': post.user.imageUrl,
+            }
+        }
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
