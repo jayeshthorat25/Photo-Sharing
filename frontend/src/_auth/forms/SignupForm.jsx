@@ -3,10 +3,12 @@ import { useState } from "react";
 
 import { useCreateUserAccount, useSignInAccount } from "@/hooks/useQueries";
 import { useUserContext } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/SimpleToast";
 
 const SignupForm = () => {
   const navigate = useNavigate();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
+  const { toast } = useToast();
 
   // Queries
   const { callApi: createUserAccount, isLoading: isCreatingAccount } = useCreateUserAccount();
@@ -88,7 +90,10 @@ const SignupForm = () => {
       const newUser = await createUserAccount(formData);
 
       if (!newUser) {
-        alert("Sign up failed. Please try again.");
+        toast({
+          title: "Sign Up Failed",
+          description: "Please try again with different credentials.",
+        });
         return;
       }
 
@@ -98,7 +103,10 @@ const SignupForm = () => {
       });
 
       if (!session) {
-        alert("Something went wrong. Please login your new account");
+        toast({
+          title: "Account Created",
+          description: "Please sign in with your new account.",
+        });
         navigate("/sign-in");
         return;
       }
@@ -109,11 +117,17 @@ const SignupForm = () => {
         setFormData({ name: "", username: "", email: "", password: "", password_confirm: "" });
         navigate("/home");
       } else {
-        alert("Login failed. Please try again.");
+        toast({
+          title: "Login Failed",
+          description: "Please try signing in manually.",
+        });
       }
     } catch (error) {
       console.error("Signup error:", error);
-      alert("An error occurred. Please try again.");
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }

@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 import SimpleButton from "../ui/SimpleButton";
+import ConfirmationModal from "../ui/ConfirmationModal";
 import { useUserContext } from "@/context/AuthContext";
 import { useSignOutAccount } from "@/hooks/useQueries";
 import { getImageUrl } from "@/lib/api";
@@ -8,11 +10,14 @@ import { getImageUrl } from "@/lib/api";
 const Topbar = () => {
   const { user } = useUserContext();
   const { callApi: signOut } = useSignOutAccount();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleSignOut = () => {
-    if (window.confirm('Are you sure you want to logout? You will need to sign in again to access your account.')) {
-      signOut();
-    }
+    setShowLogoutModal(true);
+  };
+
+  const handleConfirmLogout = () => {
+    signOut();
   };
 
   return (
@@ -43,6 +48,16 @@ const Topbar = () => {
           </Link>
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="Logout"
+        message="Are you sure you want to logout? You will need to sign in again to access your account."
+        confirmText="Logout"
+        cancelText="Cancel"
+      />
     </section>
   );
 };

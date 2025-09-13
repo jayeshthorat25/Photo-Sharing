@@ -15,11 +15,13 @@ urlpatterns = [
     path('posts/recent/', views.RecentPostsView.as_view(), name='recent-posts'),
     path('posts/search/', views.PostSearchView.as_view(), name='post-search'),
     path('posts/<int:id>/', views.PostDetailView.as_view(), name='post-detail'),
+    path('posts/public/<int:id>/', views.PublicPostDetailView.as_view(), name='public-post-detail'),
     path('posts/<int:post_id>/like/', views.like_post, name='like-post'),
     path('posts/<int:post_id>/comments/', views.CommentListView.as_view(), name='comment-list'),
     
     # User posts
     path('users/<int:user_id>/posts/', views.UserPostsView.as_view(), name='user-posts'),
+    path('users/public/<int:user_id>/posts/', views.PublicUserPostsView.as_view(), name='public-user-posts'),
     
     # Comment endpoints
     path('comments/<int:id>/', views.CommentDetailView.as_view(), name='comment-detail'),

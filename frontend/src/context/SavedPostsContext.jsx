@@ -1,14 +1,20 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useGetSavedPosts } from '@/hooks/useQueries';
+import { useUserContext } from './AuthContext';
 
 const SavedPostsContext = createContext();
 
 export const SavedPostsProvider = ({ children }) => {
   const { data: savedPosts, callApi: fetchSavedPosts } = useGetSavedPosts();
   const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated } = useUserContext();
 
-  // Fetch saved posts once when the provider mounts
+  // Fetch saved posts only when user is authenticated
   useEffect(() => {
+    if (!isAuthenticated) {
+      return; // Don't fetch if user is not authenticated
+    }
+
     const loadSavedPosts = async () => {
       setIsLoading(true);
       try {
@@ -21,7 +27,7 @@ export const SavedPostsProvider = ({ children }) => {
     };
 
     loadSavedPosts();
-  }, []); // Empty dependency array - only run once
+  }, [isAuthenticated]); // Run when authentication status changes
 
   const refreshSavedPosts = async () => {
     try {

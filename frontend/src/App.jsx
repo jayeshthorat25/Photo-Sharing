@@ -7,6 +7,7 @@ import {
   Profile,
   EditPost,
   PostDetails,
+  SharedPost,
   UpdateProfile,
   AllUsers,
 } from "@/_root/pages";
@@ -33,6 +34,9 @@ const App = () => {
           <Route path="/sign-in" element={<SigninForm />} />
           <Route path="/sign-up" element={<SignupForm />} />
         </Route>
+
+        {/* shared post route - accessible without authentication */}
+        <Route path="/shared/:id" element={<SharedPost />} />
 
         {/* private routes */}
         <Route element={<RootLayout />}>

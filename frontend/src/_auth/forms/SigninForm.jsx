@@ -3,11 +3,13 @@ import { useState } from "react";
 
 import { useSignInAccount } from "@/hooks/useQueries";
 import { useUserContext } from "@/context/AuthContext";
+import { useToast } from "@/components/ui/SimpleToast";
 
 const SigninForm = () => {
   const navigate = useNavigate();
   const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
   const { callApi: signInAccount, isLoading } = useSignInAccount();
+  const { toast } = useToast();
 
   // Simple form state
   const [formData, setFormData] = useState({
@@ -66,7 +68,10 @@ const SigninForm = () => {
       const session = await signInAccount(formData);
 
       if (!session) {
-        alert("Login failed. Please try again.");
+        toast({
+          title: "Login Failed",
+          description: "Please check your credentials and try again.",
+        });
         return;
       }
 
@@ -76,11 +81,17 @@ const SigninForm = () => {
         setFormData({ email: "", password: "" });
         navigate("/home");
       } else {
-        alert("Login failed. Please try again.");
+        toast({
+          title: "Login Failed",
+          description: "Please check your credentials and try again.",
+        });
       }
     } catch (error) {
       console.error('Sign in error:', error);
-      alert("An error occurred. Please try again.");
+      toast({
+        title: "Error",
+        description: "An error occurred. Please try again.",
+      });
     } finally {
       setIsSubmitting(false);
     }

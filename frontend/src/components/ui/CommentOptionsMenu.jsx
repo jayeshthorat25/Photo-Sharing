@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import ConfirmationModal from './ConfirmationModal';
 
 const CommentOptionsMenu = ({ 
   isOwner, 
@@ -11,6 +12,8 @@ const CommentOptionsMenu = ({
   onCancelEdit 
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const menuRef = useRef(null);
 
   // Close menu when clicking outside
@@ -29,13 +32,7 @@ const CommentOptionsMenu = ({
 
   const handlePinClick = () => {
     if (!isPinned) {
-      const confirmMessage = isPinned 
-        ? 'Are you sure you want to unpin this comment?'
-        : 'Are you sure you want to pin this comment? This will unpin any other currently pinned comment on this post.';
-      
-      if (window.confirm(confirmMessage)) {
-        onPin();
-      }
+      setShowPinModal(true);
     } else {
       onPin();
     }
@@ -43,10 +40,16 @@ const CommentOptionsMenu = ({
   };
 
   const handleDeleteClick = () => {
-    if (window.confirm('Are you sure you want to delete this comment?')) {
-      onDelete();
-    }
+    setShowDeleteModal(true);
     setIsOpen(false);
+  };
+
+  const handleConfirmPin = () => {
+    onPin();
+  };
+
+  const handleConfirmDelete = () => {
+    onDelete();
   };
 
   const handleEditClick = () => {
@@ -117,6 +120,27 @@ const CommentOptionsMenu = ({
           </div>
         </div>
       )}
+
+      <ConfirmationModal
+        isOpen={showPinModal}
+        onClose={() => setShowPinModal(false)}
+        onConfirm={handleConfirmPin}
+        title="Pin Comment"
+        message="Are you sure you want to pin this comment? This will unpin any other currently pinned comment on this post."
+        confirmText="Pin Comment"
+        cancelText="Cancel"
+      />
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Comment"
+        message="Are you sure you want to delete this comment?"
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 };
