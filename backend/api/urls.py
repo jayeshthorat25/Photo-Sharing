@@ -23,6 +23,7 @@ urlpatterns = [
     
     # Comment endpoints
     path('comments/<int:id>/', views.CommentDetailView.as_view(), name='comment-detail'),
+    path('comments/<int:comment_id>/pin/', views.CommentPinView.as_view(), name='comment-pin'),
     
     # Saved posts endpoints
     path('saves/', views.SavedPostListView.as_view(), name='saved-post-list'),

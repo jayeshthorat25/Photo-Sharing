@@ -5,11 +5,6 @@ export const sidebarLinks = [
     label: "Home",
   },
   {
-    imgURL: "/assets/icons/wallpaper.svg",
-    route: "/explore",
-    label: "Explore",
-  },
-  {
     imgURL: "/assets/icons/people.svg",
     route: "/all-users",
     label: "People",
@@ -24,6 +19,11 @@ export const sidebarLinks = [
     route: "/create-post",
     label: "Create Post",
   },
+  {
+    imgURL: "/assets/icons/edit.svg",
+    route: "/update-profile",
+    label: "Edit Profile",
+  },
 ];
 
 export const bottombarLinks = [
@@ -31,11 +31,6 @@ export const bottombarLinks = [
     imgURL: "/assets/icons/home.svg",
     route: "/home",
     label: "Home",
-  },
-  {
-    imgURL: "/assets/icons/wallpaper.svg",
-    route: "/explore",
-    label: "Explore",
   },
   {
     imgURL: "/assets/icons/bookmark.svg",
@@ -46,5 +41,10 @@ export const bottombarLinks = [
     imgURL: "/assets/icons/gallery-add.svg",
     route: "/create-post",
     label: "Create",
+  },
+  {
+    imgURL: "/assets/icons/edit.svg",
+    route: "/update-profile",
+    label: "Edit",
   },
 ];

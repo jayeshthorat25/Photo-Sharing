@@ -77,6 +77,8 @@ export const updateUser = async (user) => {
     const formData = new FormData();
     formData.append('name', user.name);
     formData.append('bio', user.bio);
+    formData.append('location', user.location || '');
+    formData.append('website', user.website || '');
     
     if (user.file && user.file.length > 0) {
       formData.append('image', user.file[0]);
@@ -164,9 +166,7 @@ export const searchPosts = async (searchTerm) => {
 export const getPostById = async (postId) => {
   try {
     if (!postId) throw new Error('Post ID is required');
-    console.log('getPostById API call - postId:', postId); // Debug log
     const response = await api.get(`/api/posts/${postId}/`);
-    console.log('getPostById API response:', response.data); // Debug log
     return response.data;
   } catch (error) {
     console.error('Error getting post by ID:', error);
@@ -277,12 +277,9 @@ export const getSavedPosts = async () => {
 
 export const getComments = async (postId) => {
   try {
-    console.log('getComments API call - postId:', postId); // Debug log
     const response = await api.get(`/api/posts/${postId}/comments/`);
-    console.log('getComments API response:', response.data); // Debug log
     // Handle different response formats - check if it's paginated or direct array
     const comments = response.data.results || response.data;
-    console.log('getComments processed comments:', comments); // Debug log
     return comments;
   } catch (error) {
     console.error('Error getting comments:', error);
@@ -320,6 +317,16 @@ export const deleteComment = async (commentId) => {
     return response.data;
   } catch (error) {
     console.error('Error deleting comment:', error);
+    throw error;
+  }
+};
+
+export const pinComment = async (commentId) => {
+  try {
+    const response = await api.post(`/api/comments/${commentId}/pin/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error pinning comment:', error);
     throw error;
   }
 };

@@ -23,6 +23,7 @@ import {
   createComment,
   updateComment,
   deleteComment,
+  pinComment,
 } from '@/lib/services/api';
 
 // Simple hook for making API calls
@@ -78,7 +79,6 @@ export const useGetRecentPosts = () => useApiCall(getRecentPosts, true); // Auto
 export const useCreatePost = () => useApiCall(createPost);
 export const useGetPostById = (postId) => {
   const apiFunction = useCallback(() => {
-    console.log('useGetPostById - fetching post with ID:', postId); // Debug log
     return getPostById(postId);
   }, [postId]);
   return useApiCall(apiFunction, !!postId); // Auto-fetch if postId exists
@@ -135,3 +135,4 @@ export const useUpdateComment = () => {
   return useApiCall(apiFunction);
 };
 export const useDeleteComment = () => useApiCall(deleteComment);
+export const usePinComment = () => useApiCall(pinComment);

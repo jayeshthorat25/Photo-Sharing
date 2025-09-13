@@ -10,8 +10,11 @@ const UpdateProfile = () => {
   const { id } = useParams();
   const { user, setUser } = useUserContext();
 
+  // Use current user if no ID provided, otherwise use the ID from params
+  const userId = id || user.id;
+
   // Queries
-  const { data: currentUser } = useGetUserById(id || "");
+  const { data: currentUser } = useGetUserById(userId);
   const { callApi: updateUser, isLoading: isLoadingUpdate } = useUpdateUser();
 
   // Simple form state
@@ -20,9 +23,12 @@ const UpdateProfile = () => {
     username: user.username,
     email: user.email,
     bio: user.bio || "",
+    location: user.location || "",
+    website: user.website || "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -66,7 +72,9 @@ const UpdateProfile = () => {
         userId: currentUser?.id || "",
         name: formData.name,
         bio: formData.bio,
-        file: [],
+        location: formData.location,
+        website: formData.website,
+        file: selectedFiles, // Pass selected files for profile image
         imageUrl: currentUser?.imageUrl || "",
         imageId: currentUser?.imageId || "",
       });
@@ -76,9 +84,11 @@ const UpdateProfile = () => {
           ...user,
           name: updatedUser.name,
           bio: updatedUser.bio,
+          location: updatedUser.location,
+          website: updatedUser.website,
           imageUrl: updatedUser.imageUrl || "",
         });
-        navigate(`/profile/${id}`);
+        navigate(`/profile/${userId}`);
       } else {
         alert("Update user failed. Please try again.");
       }
@@ -100,25 +110,26 @@ const UpdateProfile = () => {
   return (
     <div className="flex flex-1">
       <div className="common-container">
-        <div className="flex-start gap-3 justify-start w-full max-w-5xl">
-          <img
-            src="/assets/icons/edit.svg"
-            width={36}
-            height={36}
-            alt="edit"
-            className="invert-white"
-          />
-          <h2 className="h3-bold md:h2-bold text-left w-full">Edit Profile</h2>
-        </div>
+        <div className="w-full max-w-2xl mx-auto">
+          <div className="flex-start gap-3 justify-start w-full mb-6">
+            <img
+              src="/assets/icons/edit.svg"
+              width={36}
+              height={36}
+              alt="edit"
+              className="invert-white"
+            />
+            <h2 className="h3-bold md:h2-bold text-left w-full">Edit Profile</h2>
+          </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="flex flex-col gap-7 w-full mt-4 max-w-5xl">
-            <div className="flex">
-              <ProfileUploader
-                fieldChange={() => {}} // Profile uploader handles its own state
-                mediaUrl={currentUser?.imageUrl || ""}
-              />
-            </div>
+          <form onSubmit={handleSubmit}>
+            <div className="flex flex-col gap-6 w-full">
+              <div className="flex justify-center mb-4">
+                <ProfileUploader
+                  fieldChange={setSelectedFiles} // Pass files to form state
+                  mediaUrl={currentUser?.imageUrl || ""}
+                />
+              </div>
 
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-light-1 mb-2">
@@ -130,7 +141,7 @@ const UpdateProfile = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="Enter your name"
               />
               {errors.name && (
@@ -149,7 +160,7 @@ const UpdateProfile = () => {
                 value={formData.username}
                 onChange={handleChange}
                 disabled
-                className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
                 placeholder="Username"
               />
             </div>
@@ -165,7 +176,7 @@ const UpdateProfile = () => {
                 value={formData.email}
                 onChange={handleChange}
                 disabled
-                className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
                 placeholder="Email"
               />
             </div>
@@ -179,29 +190,60 @@ const UpdateProfile = () => {
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
-                className="w-full min-h-[80px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar"
+                className="w-full min-h-[100px] px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar resize-none"
                 placeholder="Tell us about yourself"
               />
             </div>
 
-            <div className="flex gap-4 items-center justify-end">
-              <button
-                type="button"
-                onClick={() => navigate(-1)}
-                className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isLoadingUpdate || isSubmitting}
-                className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                {isLoadingUpdate ? "Loading..." : "Update Profile"}
-              </button>
+            <div>
+              <label htmlFor="location" className="block text-sm font-medium text-light-1 mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                value={formData.location}
+                onChange={handleChange}
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="Where are you from?"
+              />
             </div>
-          </div>
-        </form>
+
+            <div>
+              <label htmlFor="website" className="block text-sm font-medium text-light-1 mb-2">
+                Website
+              </label>
+              <input
+                type="url"
+                id="website"
+                name="website"
+                value={formData.website}
+                onChange={handleChange}
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                placeholder="https://yourwebsite.com"
+              />
+            </div>
+
+              <div className="flex gap-4 items-center justify-end pt-4">
+                <button
+                  type="button"
+                  onClick={() => navigate(-1)}
+                  className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isLoadingUpdate || isSubmitting}
+                  className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
+                >
+                  {isLoadingUpdate ? "Loading..." : "Update Profile"}
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

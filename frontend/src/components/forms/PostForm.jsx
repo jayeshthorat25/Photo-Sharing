@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useUserContext } from "@/context/AuthContext";
 import { FileUploader } from "@/components/shared";
@@ -9,6 +9,7 @@ const PostForm = ({ post, action }) => {
   const navigate = useNavigate();
   const { user } = useUserContext();
 
+
   // Query
   const { callApi: createPost, isLoading: isLoadingCreate } = useCreatePost();
   const { callApi: updatePost, isLoading: isLoadingUpdate } = useUpdatePost();
@@ -17,11 +18,23 @@ const PostForm = ({ post, action }) => {
   const [formData, setFormData] = useState({
     caption: post ? post?.caption : "",
     location: post ? post.location : "",
-    tags: post ? post.tags?.join(",") : "",
+    tags: post ? (Array.isArray(post.tags) ? post.tags.join(",") : post.tags || "") : "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
+
+  // Update form data when post changes (for edit mode)
+  useEffect(() => {
+    if (post && action === "Update") {
+      const newFormData = {
+        caption: post.caption || "",
+        location: post.location || "",
+        tags: post.tags ? (Array.isArray(post.tags) ? post.tags.join(",") : (post.tags || "")) : "",
+      };
+      setFormData(newFormData);
+    }
+  }, [post, action]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -99,19 +112,28 @@ const PostForm = ({ post, action }) => {
     }
   };
 
+  // Early return if no user context
+  if (!user) {
+    return (
+      <div className="flex-center w-full h-full">
+        <p className="text-light-1">Loading user data...</p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-9 w-full max-w-5xl">
-        <div>
-          <label htmlFor="caption" className="block text-sm font-medium text-light-1 mb-2">
-            Caption
-          </label>
+        <div className="flex flex-col gap-6 w-full">
+          <div>
+            <label htmlFor="caption" className="block text-sm font-medium text-light-1 mb-2">
+              Caption
+            </label>
           <textarea
             id="caption"
             name="caption"
             value={formData.caption}
             onChange={handleChange}
-            className="w-full min-h-[80px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar"
+            className="w-full min-h-[100px] px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar resize-none"
             placeholder="Write a caption..."
           />
           {errors.caption && (
@@ -139,7 +161,7 @@ const PostForm = ({ post, action }) => {
             name="location"
             value={formData.location}
             onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Add location"
           />
         </div>
@@ -154,23 +176,23 @@ const PostForm = ({ post, action }) => {
             name="tags"
             value={formData.tags}
             onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Art, Expression, Learn"
           />
         </div>
 
-        <div className="flex gap-4 items-center justify-end">
+        <div className="flex gap-4 items-center justify-end pt-4">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600"
+            className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isLoadingCreate || isLoadingUpdate || isSubmitting}
-            className="px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            className="px-6 py-3 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap transition-colors"
           >
             {isLoadingCreate || isLoadingUpdate ? "Loading..." : `${action} Post`}
           </button>

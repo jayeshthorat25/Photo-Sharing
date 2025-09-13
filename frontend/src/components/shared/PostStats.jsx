@@ -35,9 +35,7 @@ const PostStats = ({ post, userId }) => {
     e.stopPropagation();
 
     try {
-      console.log('Liking post:', post.id, 'Current like count:', likeCount); // Debug log
       const result = await likePost({ postId: post.id, likesArray: [] });
-      console.log('Like result:', result); // Debug log
       
       // Update local state based on the response
       // The API might return different field names, let's check for common ones
@@ -51,8 +49,6 @@ const PostStats = ({ post, userId }) => {
         setLikes(prevLikes => prevLikes.filter((id) => id !== userId));
         setLikeCount(prevCount => newLikeCount || Math.max(0, prevCount - 1));
       }
-      
-      console.log('Updated like count:', newLikeCount || (isLiked ? likeCount + 1 : Math.max(0, likeCount - 1))); // Debug log
     } catch (error) {
       console.error('Error liking post:', error);
     }

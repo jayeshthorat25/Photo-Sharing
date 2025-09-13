@@ -112,7 +112,7 @@ const SignupForm = () => {
         alert("Login failed. Please try again.");
       }
     } catch (error) {
-      console.log({ error });
+      console.error("Signup error:", error);
       alert("An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);

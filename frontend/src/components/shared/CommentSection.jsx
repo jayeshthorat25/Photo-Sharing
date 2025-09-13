@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useUserContext } from '@/context/AuthContext';
 import { useGetComments, useCreateComment } from '@/hooks/useQueries';
 import Comment from './Comment';
 import SimpleButton from '@/components/ui/SimpleButton';
-// Removed SimpleTextarea import - using simple HTML textarea instead
 import { Loader } from './index';
 
-const CommentSection = ({ postId }) => {
+const CommentSection = ({ postId, post }) => {
   const { user } = useUserContext();
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,7 +25,6 @@ const CommentSection = ({ postId }) => {
       setNewComment('');
       // Refresh comments
       await fetchComments();
-      console.log('Comment created successfully'); // Debug log
     } catch (error) {
       console.error('Error creating comment:', error);
       alert('Failed to create comment. Please try again.');
@@ -40,9 +38,6 @@ const CommentSection = ({ postId }) => {
     await fetchComments();
   };
 
-  console.log('CommentSection - postId:', postId, 'comments:', comments, 'isLoading:', isLoading); // Debug log
-  console.log('CommentSection - comments type:', typeof comments, 'isArray:', Array.isArray(comments)); // Debug log
-  console.log('CommentSection - comments length:', comments?.length); // Debug log
 
   if (isLoading) {
     return (
@@ -73,29 +68,29 @@ const CommentSection = ({ postId }) => {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
-              className="w-full min-h-[60px] px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full min-h-[80px] px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar resize-none"
             />
-            <div className="flex justify-end mt-2">
-              <SimpleButton
+            <div className="flex justify-end mt-3">
+              <button
                 type="submit"
                 disabled={!newComment.trim() || isSubmitting}
-                size="sm"
-                className="px-4"
+                className="px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
               >
                 {isSubmitting ? 'Posting...' : 'Post Comment'}
-              </SimpleButton>
+              </button>
             </div>
           </div>
         </div>
       </form>
 
       {/* Comments List */}
-      <div className="bg-dark-2 rounded-lg border border-dark-4 overflow-hidden">
+      <div className="bg-dark-2 rounded-lg border border-dark-4 overflow-visible">
         {comments && comments.length > 0 ? (
           comments.map((comment) => (
             <Comment
               key={comment.id}
               comment={comment}
+              post={post}
               onCommentUpdated={handleCommentUpdated}
             />
           ))

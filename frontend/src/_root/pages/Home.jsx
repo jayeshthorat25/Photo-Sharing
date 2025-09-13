@@ -1,10 +1,7 @@
-import { useEffect } from "react";
-// import { useToast } from "@/components/ui/SimpleToast";
 import { Loader, PostCard, UserCard } from "@/components/shared";
 import { useGetRecentPosts, useGetUsers } from "@/hooks/useQueries";
 
 const Home = () => {
-  // const { toast } = useToast();
 
   const {
     data: posts,
