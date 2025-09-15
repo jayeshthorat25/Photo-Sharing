@@ -33,7 +33,7 @@ const Home = () => {
             <ul className="flex flex-col flex-1 gap-9 w-full ">
               {posts?.documents && Array.isArray(posts.documents) && posts.documents.map((post) => (
                 <li key={post.id} className="flex justify-center w-full">
-                  <PostCard post={post} />
+                  <PostCard post={post} onPostDeleted={fetchPosts} />
                 </li>
               ))}
             </ul>

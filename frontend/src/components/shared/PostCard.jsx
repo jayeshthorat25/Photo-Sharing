@@ -9,7 +9,7 @@ import { useDeletePost } from "@/hooks/useQueries";
 import PostOptionsMenu from "@/components/ui/PostOptionsMenu";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post, onPostDeleted }) => {
   const { user } = useUserContext();
   const navigate = useNavigate();
   const { callApi: deletePost } = useDeletePost();
@@ -18,8 +18,11 @@ const PostCard = ({ post }) => {
   if (!post.user) return;
 
   const handleDeletePost = async (e) => {
-    e.preventDefault(); // Prevent navigation to post details
-    e.stopPropagation();
+    // Prevent navigation to post details if event is provided
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     
     // Double-check ownership before allowing deletion
     if (String(user?.id) !== String(post?.user?.id)) {
@@ -33,8 +36,13 @@ const PostCard = ({ post }) => {
   const handleConfirmDelete = async () => {
     try {
       await deletePost({ postId: post.id, imageId: post?.imageId });
-      // Optionally refresh the page or navigate away
-      window.location.reload();
+      // Refresh the posts list if callback is provided
+      if (onPostDeleted) {
+        onPostDeleted();
+      } else {
+        // Fallback to page reload if no callback provided
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Error deleting post:', error);
       alert('Failed to delete post. Please try again.');

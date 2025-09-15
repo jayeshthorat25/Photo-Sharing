@@ -108,13 +108,14 @@ class PostListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     imageUrl = serializers.ReadOnlyField()
     likes_count = serializers.ReadOnlyField()
+    is_liked = serializers.SerializerMethodField()
     comments_count = serializers.SerializerMethodField()
     is_edited = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = ('id', 'user', 'caption', 'imageUrl', 'location', 'tags', 
-                 'likes_count', 'comments_count', 'is_edited', 'created_at', 'updated_at')
+                 'likes_count', 'is_liked', 'comments_count', 'is_edited', 'created_at', 'updated_at')
         read_only_fields = ('id', 'created_at', 'updated_at')
 
     def get_user(self, obj):
@@ -125,6 +126,12 @@ class PostListSerializer(serializers.ModelSerializer):
             'username': obj.user.username,
             'imageUrl': obj.user.imageUrl,
         }
+
+    def get_is_liked(self, obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.likes.filter(id=request.user.id).exists()
+        return False
 
     def get_comments_count(self, obj):
         return obj.comments.count()
