@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { checkIsLiked } from "@/lib/utils";
 import {
@@ -11,6 +11,7 @@ import { useSavedPosts } from "@/context/SavedPostsContext";
 
 const PostStats = ({ post, userId }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   // Initialize likes based on is_liked status and likes_count
   const initialLikes = post.is_liked ? [userId] : [];
   const [likes, setLikes] = useState(initialLikes);
@@ -72,6 +73,11 @@ const PostStats = ({ post, userId }) => {
     }
   };
 
+  const handleCommentsClick = (e) => {
+    e.stopPropagation();
+    navigate(`/posts/${post.id}#comments`);
+  };
+
   const containerStyles = location.pathname.startsWith("/profile")
     ? "w-full"
     : "";
@@ -79,7 +85,8 @@ const PostStats = ({ post, userId }) => {
   return (
     <div
       className={`flex justify-between items-center z-20 ${containerStyles}`}>
-      <div className="flex gap-2 mr-5">
+      {/* Like Button */}
+      <div className="flex gap-2">
         <img
           src={`${
             checkIsLiked(likes, userId)
@@ -95,10 +102,24 @@ const PostStats = ({ post, userId }) => {
         <p className="small-medium lg:base-medium">{likeCount}</p>
       </div>
 
+      {/* Comments Button - Centered */}
+      <div className="flex gap-2">
+        <img
+          src="/assets/icons/chat.svg"
+          alt="comments"
+          width={20}
+          height={20}
+          onClick={(e) => handleCommentsClick(e)}
+          className="cursor-pointer invert-white"
+        />
+        <p className="small-medium lg:base-medium">{post.comments_count || 0}</p>
+      </div>
+
+      {/* Save Button */}
       <div className="flex gap-2">
         <img
           src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
-          alt="share"
+          alt="save"
           width={20}
           height={20}
           className="cursor-pointer"

@@ -108,7 +108,7 @@ class PostListSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     imageUrl = serializers.ReadOnlyField()
     likes_count = serializers.ReadOnlyField()
-    comments_count = serializers.ReadOnlyField()
+    comments_count = serializers.SerializerMethodField()
     is_edited = serializers.SerializerMethodField()
 
     class Meta:

@@ -18,6 +18,7 @@ const SigninForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   // Handle input changes
   const handleChange = (e) => {
@@ -32,6 +33,10 @@ const SigninForm = () => {
         ...prev,
         [name]: ""
       }));
+    }
+    // Clear API error when user starts typing
+    if (apiError) {
+      setApiError("");
     }
   };
 
@@ -64,14 +69,13 @@ const SigninForm = () => {
     }
 
     setIsSubmitting(true);
+    setApiError(""); // Clear any previous API errors
+    
     try {
       const session = await signInAccount(formData);
 
       if (!session) {
-        toast({
-          title: "Login Failed",
-          description: "Please check your credentials and try again.",
-        });
+        setApiError("Invalid credentials. Please check your email and password.");
         return;
       }
 
@@ -81,17 +85,27 @@ const SigninForm = () => {
         setFormData({ email: "", password: "" });
         navigate("/home");
       } else {
-        toast({
-          title: "Login Failed",
-          description: "Please check your credentials and try again.",
-        });
+        setApiError("Login failed. Please try again.");
       }
     } catch (error) {
       console.error('Sign in error:', error);
-      toast({
-        title: "Error",
-        description: "An error occurred. Please try again.",
-      });
+      
+      // Extract specific error message from API response
+      let errorMessage = "An error occurred. Please try again.";
+      
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response?.status === 401) {
+        errorMessage = "Invalid credentials. Please check your email and password.";
+      } else if (error.response?.status === 400) {
+        errorMessage = "Invalid request. Please check your input.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setApiError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -109,6 +123,12 @@ const SigninForm = () => {
       </p>
       
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full mt-4">
+        {apiError && (
+          <div className="bg-red-500/10 border border-red-500/20 rounded-md p-3">
+            <p className="text-sm" style={{ color: '#ef4444' }}>{apiError}</p>
+          </div>
+        )}
+        
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-light-1 mb-2">
             Email
@@ -123,7 +143,7 @@ const SigninForm = () => {
             placeholder="Enter your email"
           />
           {errors.email && (
-            <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.email}</p>
           )}
         </div>
 
@@ -141,7 +161,7 @@ const SigninForm = () => {
             placeholder="Enter your password"
           />
           {errors.password && (
-            <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password}</p>
           )}
         </div>
 
