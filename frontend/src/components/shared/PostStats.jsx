@@ -13,8 +13,7 @@ const PostStats = ({ post, userId }) => {
   const location = useLocation();
   const navigate = useNavigate();
   // Initialize likes based on is_liked status and likes_count
-  const initialLikes = post.is_liked ? [userId] : [];
-  const [likes, setLikes] = useState(initialLikes);
+  const [likes, setLikes] = useState([]);
   const [likeCount, setLikeCount] = useState(post.likes_count || 0);
   const [isSaved, setIsSaved] = useState(false);
 
@@ -31,6 +30,15 @@ const PostStats = ({ post, userId }) => {
   useEffect(() => {
     setIsSaved(!!savedPostRecord);
   }, [savedPostRecord]);
+
+  // Initialize likes state based on post.is_liked
+  useEffect(() => {
+    if (post.is_liked) {
+      setLikes([userId]);
+    } else {
+      setLikes([]);
+    }
+  }, [post.is_liked, userId]);
 
   const handleLikePost = async (e) => {
     e.stopPropagation();
@@ -86,45 +94,54 @@ const PostStats = ({ post, userId }) => {
     <div
       className={`flex justify-between items-center z-20 ${containerStyles}`}>
       {/* Like Button */}
-      <div className="flex gap-2">
-        <img
-          src={`${
-            checkIsLiked(likes, userId)
-              ? "/assets/icons/liked.svg"
-              : "/assets/icons/like.svg"
-          }`}
-          alt="like"
-          width={20}
-          height={20}
-          onClick={(e) => handleLikePost(e)}
-          className="cursor-pointer"
-        />
-        <p className="small-medium lg:base-medium">{likeCount}</p>
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex gap-2 items-center">
+          <img
+            src={`${
+              checkIsLiked(likes, userId)
+                ? "/assets/icons/liked.svg"
+                : "/assets/icons/like.svg"
+            }`}
+            alt="like"
+            width={20}
+            height={20}
+            onClick={(e) => handleLikePost(e)}
+            className="cursor-pointer"
+          />
+          <p className="small-medium lg:base-medium">{likeCount}</p>
+        </div>
+        <p className="text-xs text-light-3">Like</p>
       </div>
 
       {/* Comments Button - Centered */}
-      <div className="flex gap-2">
-        <img
-          src="/assets/icons/chat.svg"
-          alt="comments"
-          width={20}
-          height={20}
-          onClick={(e) => handleCommentsClick(e)}
-          className="cursor-pointer invert-white"
-        />
-        <p className="small-medium lg:base-medium">{post.comments_count || 0}</p>
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex gap-2 items-center">
+          <img
+            src="/assets/icons/chat.svg"
+            alt="comments"
+            width={20}
+            height={20}
+            onClick={(e) => handleCommentsClick(e)}
+            className="cursor-pointer invert-white"
+          />
+          <p className="small-medium lg:base-medium">{post.comments_count || 0}</p>
+        </div>
+        <p className="text-xs text-light-3">Comment</p>
       </div>
 
       {/* Save Button */}
-      <div className="flex gap-2">
-        <img
-          src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
-          alt="save"
-          width={20}
-          height={20}
-          className="cursor-pointer"
-          onClick={(e) => handleSavePost(e)}
-        />
+      <div className="flex flex-col items-center gap-1">
+        <div className="flex gap-2 items-center">
+          <img
+            src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
+            alt="save"
+            width={20}
+            height={20}
+            className="cursor-pointer"
+            onClick={(e) => handleSavePost(e)}
+          />
+        </div>
+        <p className="text-xs text-light-3">Save</p>
       </div>
     </div>
   );

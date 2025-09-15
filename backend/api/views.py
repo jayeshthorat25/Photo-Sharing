@@ -116,7 +116,7 @@ class PostListView(generics.ListCreateAPIView):
     def get_queryset(self):
         offset = int(self.request.query_params.get('offset', 0))
         limit = 20
-        return Post.objects.select_related('user').prefetch_related('comments')[offset:offset+limit]
+        return Post.objects.select_related('user').prefetch_related('comments', 'likes')[offset:offset+limit]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -128,7 +128,7 @@ class RecentPostsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Post.objects.select_related('user').prefetch_related('comments')[:10]
+        return Post.objects.select_related('user').prefetch_related('comments', 'likes')[:10]
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -213,7 +213,7 @@ class UserPostsView(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
-        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments')
+        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments', 'likes')
 
 
 class PublicUserPostsView(generics.ListAPIView):
