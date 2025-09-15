@@ -24,6 +24,7 @@ const SignupForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [apiError, setApiError] = useState("");
 
   // Handle input changes
   const handleChange = (e) => {
@@ -38,6 +39,10 @@ const SignupForm = () => {
         ...prev,
         [name]: ""
       }));
+    }
+    // Clear API error when user starts typing
+    if (apiError) {
+      setApiError("");
     }
   };
 
@@ -86,14 +91,13 @@ const SignupForm = () => {
     }
 
     setIsSubmitting(true);
+    setApiError(""); // Clear any previous API errors
+    
     try {
       const newUser = await createUserAccount(formData);
 
       if (!newUser) {
-        toast({
-          title: "Sign Up Failed",
-          description: "Please try again with different credentials.",
-        });
+        setApiError("Sign up failed. Please try again with different credentials.");
         return;
       }
 
@@ -103,11 +107,10 @@ const SignupForm = () => {
       });
 
       if (!session) {
-        toast({
-          title: "Account Created",
-          description: "Please sign in with your new account.",
-        });
-        navigate("/sign-in");
+        setApiError("Account created successfully! Please sign in with your new account.");
+        setTimeout(() => {
+          navigate("/sign-in");
+        }, 2000);
         return;
       }
 
@@ -117,17 +120,33 @@ const SignupForm = () => {
         setFormData({ name: "", username: "", email: "", password: "", password_confirm: "" });
         navigate("/home");
       } else {
-        toast({
-          title: "Login Failed",
-          description: "Please try signing in manually.",
-        });
+        setApiError("Account created but login failed. Please try signing in manually.");
       }
     } catch (error) {
       console.error("Signup error:", error);
-      toast({
-        title: "Error",
-        description: "An error occurred. Please try again.",
-      });
+      
+      // Extract specific error message from API response
+      let errorMessage = "An error occurred. Please try again.";
+      
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response?.data?.username) {
+        errorMessage = `Username: ${error.response.data.username[0]}`;
+      } else if (error.response?.data?.email) {
+        errorMessage = `Email: ${error.response.data.email[0]}`;
+      } else if (error.response?.data?.password) {
+        errorMessage = `Password: ${error.response.data.password[0]}`;
+      } else if (error.response?.status === 400) {
+        errorMessage = "Invalid request. Please check your input.";
+      } else if (error.response?.status === 409) {
+        errorMessage = "Username or email already exists. Please try different credentials.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      setApiError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -145,6 +164,18 @@ const SignupForm = () => {
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full mt-4">
+        {apiError && (
+          <div className={`border rounded-md p-3 ${
+            apiError.includes("successfully") 
+              ? "bg-green-500/10 border-green-500/20" 
+              : "bg-red-500/10 border-red-500/20"
+          }`}>
+            <p className="text-sm" style={{ 
+              color: apiError.includes("successfully") ? '#22c55e' : '#ef4444' 
+            }}>{apiError}</p>
+          </div>
+        )}
+        
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-light-1 mb-2">
             Name
@@ -159,7 +190,7 @@ const SignupForm = () => {
             placeholder="Enter your full name"
           />
           {errors.name && (
-            <p className="text-sm text-red-500 mt-1">{errors.name}</p>
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.name}</p>
           )}
         </div>
 
@@ -177,7 +208,7 @@ const SignupForm = () => {
             placeholder="Enter your username"
           />
           {errors.username && (
-            <p className="text-sm text-red-500 mt-1">{errors.username}</p>
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.username}</p>
           )}
         </div>
 
@@ -195,7 +226,7 @@ const SignupForm = () => {
             placeholder="Enter your email"
           />
           {errors.email && (
-            <p className="text-sm text-red-500 mt-1">{errors.email}</p>
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.email}</p>
           )}
         </div>
 
@@ -213,7 +244,7 @@ const SignupForm = () => {
             placeholder="Enter your password"
           />
           {errors.password && (
-            <p className="text-sm text-red-500 mt-1">{errors.password}</p>
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password}</p>
           )}
         </div>
 
@@ -231,7 +262,7 @@ const SignupForm = () => {
             placeholder="Confirm your password"
           />
           {errors.password_confirm && (
-            <p className="text-sm text-red-500 mt-1">{errors.password_confirm}</p>
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password_confirm}</p>
           )}
         </div>
 

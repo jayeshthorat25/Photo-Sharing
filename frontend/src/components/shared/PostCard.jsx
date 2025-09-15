@@ -102,20 +102,6 @@ const PostCard = ({ post }) => {
       </Link>
 
       <PostStats post={post} userId={user.id} />
-      
-      {/* Comment count display */}
-      <div className="flex items-center gap-2 px-4 py-2 text-light-3">
-        <img
-          src="/assets/icons/chat.svg"
-          alt="comments"
-          width={16}
-          height={16}
-          className="invert-white"
-        />
-        <span className="small-regular">
-          {post.comments_count || 0} comments
-        </span>
-      </div>
 
       <ConfirmationModal
         isOpen={showDeleteModal}
