@@ -6,6 +6,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from django.core.mail import send_mail
+from django.conf import settings
+import secrets
+from datetime import timedelta
 from .models import User, Post, Comment, SavedPost
 from .serializers import (
     UserRegistrationSerializer, UserSerializer, UserUpdateSerializer,
@@ -315,3 +320,92 @@ class SavedPostDetailView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return SavedPost.objects.filter(user=self.request.user)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def forgot_password(request):
+    """View for requesting password reset"""
+    email = request.data.get('email')
+    
+    if not email:
+        return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(email=email)
+    except User.DoesNotExist:
+        # Don't reveal if email exists or not for security
+        return Response({'message': 'If an account with this email exists, a password reset link has been sent.'}, 
+                       status=status.HTTP_200_OK)
+    
+    # Generate reset token
+    reset_token = secrets.token_urlsafe(32)
+    user.reset_token = reset_token
+    user.reset_token_expires = timezone.now() + timedelta(hours=1)  # Token expires in 1 hour
+    user.save()
+    
+    # Send email (in production, you would use a proper email service)
+    reset_url = f"{settings.FRONTEND_URL}/reset-password/{reset_token}"
+    
+    try:
+        send_mail(
+            'Password Reset Request - SnapGram',
+            f'''
+            Hi {user.name},
+            
+            You requested a password reset for your SnapGram account.
+            
+            Click the link below to reset your password:
+            {reset_url}
+            
+            This link will expire in 1 hour.
+            
+            If you didn't request this password reset, please ignore this email.
+            
+            Best regards,
+            The SnapGram Team
+            ''',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+        # In production, you might want to use a proper email service like SendGrid
+    
+    return Response({'message': 'If an account with this email exists, a password reset link has been sent.'}, 
+                   status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def reset_password(request, token):
+    """View for resetting password with token"""
+    password = request.data.get('password')
+    
+    if not password:
+        return Response({'error': 'Password is required'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if len(password) < 6:
+        return Response({'error': 'Password must be at least 6 characters long'}, 
+                       status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(reset_token=token)
+    except User.DoesNotExist:
+        return Response({'error': 'Invalid or expired reset token'}, 
+                       status=status.HTTP_400_BAD_REQUEST)
+    
+    # Check if token is expired
+    if user.reset_token_expires and timezone.now() > user.reset_token_expires:
+        return Response({'error': 'Reset token has expired'}, 
+                       status=status.HTTP_400_BAD_REQUEST)
+    
+    # Reset password
+    user.set_password(password)
+    user.reset_token = None
+    user.reset_token_expires = None
+    user.save()
+    
+    return Response({'message': 'Password has been successfully reset'}, 
+                   status=status.HTTP_200_OK)

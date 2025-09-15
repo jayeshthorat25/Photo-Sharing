@@ -13,6 +13,8 @@ class User(AbstractUser):
     location = models.CharField(max_length=255, blank=True)
     website = models.URLField(blank=True)
     image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path only
+    reset_token = models.CharField(max_length=100, blank=True, null=True)
+    reset_token_expires = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

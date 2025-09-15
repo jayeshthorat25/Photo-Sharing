@@ -9,6 +9,8 @@ urlpatterns = [
     path('auth/me/', views.CurrentUserView.as_view(), name='current-user'),
     path('auth/users/', views.UserListView.as_view(), name='user-list'),
     path('auth/users/<int:id>/', views.UserDetailView.as_view(), name='user-detail'),
+    path('auth/forgot-password/', views.forgot_password, name='forgot-password'),
+    path('auth/reset-password/<str:token>/', views.reset_password, name='reset-password'),
     
     # Post endpoints
     path('posts/', views.PostListView.as_view(), name='post-list'),
