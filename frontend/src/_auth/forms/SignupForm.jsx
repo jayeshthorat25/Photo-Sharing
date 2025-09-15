@@ -25,6 +25,8 @@ const SignupForm = () => {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -234,15 +236,28 @@ const SignupForm = () => {
           <label htmlFor="password" className="block text-sm font-medium text-light-1 mb-2">
             Password
           </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            placeholder="Enter your password"
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="Enter your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-light-1 hover:text-primary-500 transition-colors"
+            >
+              <img
+                src={showPassword ? "/assets/icons/eye-slash.svg" : "/assets/icons/eye.svg"}
+                alt={showPassword ? "Hide password" : "Show password"}
+                className="w-5 h-5 filter brightness-0 invert"
+              />
+            </button>
+          </div>
           {errors.password && (
             <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password}</p>
           )}
@@ -252,15 +267,28 @@ const SignupForm = () => {
           <label htmlFor="password_confirm" className="block text-sm font-medium text-light-1 mb-2">
             Confirm Password
           </label>
-          <input
-            type="password"
-            id="password_confirm"
-            name="password_confirm"
-            value={formData.password_confirm}
-            onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            placeholder="Confirm your password"
-          />
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="password_confirm"
+              name="password_confirm"
+              value={formData.password_confirm}
+              onChange={handleChange}
+              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="Confirm your password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-light-1 hover:text-primary-500 transition-colors"
+            >
+              <img
+                src={showConfirmPassword ? "/assets/icons/eye-slash.svg" : "/assets/icons/eye.svg"}
+                alt={showConfirmPassword ? "Hide password" : "Show password"}
+                className="w-5 h-5 filter brightness-0 invert"
+              />
+            </button>
+          </div>
           {errors.password_confirm && (
             <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password_confirm}</p>
           )}
