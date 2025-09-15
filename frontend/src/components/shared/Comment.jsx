@@ -23,6 +23,7 @@ const Comment = ({ comment, post, onCommentUpdated }) => {
 
   const isOwner = String(user.id) === String(comment.user.id);
   const isPostOwner = String(user.id) === String(post?.user?.id);
+  const isCommentFromPostOwner = String(comment.user.id) === String(post?.user?.id);
 
   const handleUpdateComment = async () => {
     if (editContent.trim() && editContent !== comment.content) {
@@ -71,21 +72,41 @@ const Comment = ({ comment, post, onCommentUpdated }) => {
   };
 
   return (
-    <div className="flex gap-3 p-4 border-b border-dark-4 last:border-b-0 hover:bg-dark-3/50 transition-colors">
+    <div className={`flex gap-3 p-4 border-b border-dark-4 last:border-b-0 hover:bg-dark-3/50 transition-colors ${
+      isCommentFromPostOwner ? 'bg-primary-500/5 border-l-4 border-l-primary-500' : ''
+    }`}>
       <Link to={`/profile/${comment.user.id}`}>
-        <img
-          src={comment.user.imageUrl || "/assets/icons/profile-placeholder.svg"}
-          alt={comment.user.name}
-          className="w-8 h-8 rounded-full object-cover"
-        />
+        <div className="relative">
+          <img
+            src={comment.user.imageUrl || "/assets/icons/profile-placeholder.svg"}
+            alt={comment.user.name}
+            className="w-8 h-8 rounded-full object-cover"
+          />
+          {isCommentFromPostOwner && (
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary-500 rounded-full flex items-center justify-center">
+              <span className="text-white text-xs font-bold">👑</span>
+            </div>
+          )}
+        </div>
       </Link>
       
       <div className="flex-1">
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <Link to={`/profile/${comment.user.id}`}>
-              <p className={`base-semibold ${isOwner ? 'text-primary-500' : 'text-light-1'}`}>
+              <p className={`base-semibold ${
+                isCommentFromPostOwner 
+                  ? 'text-primary-500 font-bold' 
+                  : isOwner 
+                    ? 'text-primary-500' 
+                    : 'text-light-1'
+              }`}>
                 {comment.user.name}
+                {isCommentFromPostOwner && (
+                  <span className="ml-2 text-xs bg-primary-500/20 text-primary-400 px-2 py-1 rounded-full">
+                    Post Owner
+                  </span>
+                )}
               </p>
             </Link>
             <p className="small-medium text-light-3">

@@ -26,6 +26,8 @@ import {
   updateComment,
   deleteComment,
   pinComment,
+  forgotPassword,
+  resetPassword,
 } from '@/lib/services/api';
 
 // Simple hook for making API calls
@@ -150,3 +152,7 @@ export const useUpdateComment = () => {
 };
 export const useDeleteComment = () => useApiCall(deleteComment);
 export const usePinComment = () => useApiCall(pinComment);
+
+// Password reset hooks
+export const useForgotPassword = () => useApiCall(forgotPassword);
+export const useResetPassword = () => useApiCall(resetPassword);

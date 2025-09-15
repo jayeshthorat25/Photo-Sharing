@@ -91,22 +91,24 @@ const CommentOptionsMenu = ({
             )}
             
             {isOwner && !isEditing && (
-              <>
-                <button
-                  onClick={handleEditClick}
-                  className="w-full px-4 py-2 text-left text-sm lg:text-base text-light-1 hover:bg-dark-3 transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
-                  <img src="/assets/icons/edit.svg" alt="edit" width={14} height={14} className="opacity-70 flex-shrink-0" />
-                  Edit comment
-                </button>
-                <button
-                  onClick={handleDeleteClick}
-                  className="w-full px-4 py-2 text-left text-sm lg:text-base text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-2 whitespace-nowrap"
-                >
-                  <img src="/assets/icons/delete.svg" alt="delete" width={14} height={14} className="opacity-70 flex-shrink-0" />
-                  Delete comment
-                </button>
-              </>
+              <button
+                onClick={handleEditClick}
+                className="w-full px-4 py-2 text-left text-sm lg:text-base text-light-1 hover:bg-dark-3 transition-colors flex items-center gap-2 whitespace-nowrap"
+              >
+                <img src="/assets/icons/edit.svg" alt="edit" width={14} height={14} className="opacity-70 flex-shrink-0" />
+                Edit comment
+              </button>
+            )}
+            
+            {/* Delete option - available for comment owner OR post owner */}
+            {(isOwner || isPostOwner) && !isEditing && (
+              <button
+                onClick={handleDeleteClick}
+                className="w-full px-4 py-2 text-left text-sm lg:text-base text-red-400 hover:bg-red-500/20 transition-colors flex items-center gap-2 whitespace-nowrap"
+              >
+                <img src="/assets/icons/delete.svg" alt="delete" width={14} height={14} className="opacity-70 flex-shrink-0" />
+                {isOwner ? 'Delete comment' : 'Delete comment (as post owner)'}
+              </button>
             )}
             
             {isOwner && isEditing && (
@@ -136,7 +138,11 @@ const CommentOptionsMenu = ({
         onClose={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
         title="Delete Comment"
-        message="Are you sure you want to delete this comment?"
+        message={
+          isOwner 
+            ? "Are you sure you want to delete your comment?" 
+            : "Are you sure you want to delete this comment? As the post owner, you can delete any comment on your post."
+        }
         confirmText="Delete"
         cancelText="Cancel"
         variant="danger"

@@ -1,25 +1,28 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useResetPassword } from "@/hooks/useQueries";
 
-import { useSignInAccount } from "@/hooks/useQueries";
-import { useUserContext } from "@/context/AuthContext";
-import { useToast } from "@/components/ui/SimpleToast";
-
-const SigninForm = () => {
+const ResetPasswordForm = () => {
+  const { token } = useParams();
   const navigate = useNavigate();
-  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
-  const { callApi: signInAccount, isLoading } = useSignInAccount();
-  const { toast } = useToast();
-
-  // Simple form state
+  const { callApi: resetPassword, isLoading } = useResetPassword();
   const [formData, setFormData] = useState({
-    email: "",
     password: "",
+    confirmPassword: "",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [isSuccess, setIsSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Check if token is valid on component mount
+  useEffect(() => {
+    if (!token) {
+      navigate("/forgot-password");
+    }
+  }, [token, navigate]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -45,16 +48,16 @@ const SigninForm = () => {
   const validateForm = () => {
     const newErrors = {};
     
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email is invalid";
-    }
-    
     if (!formData.password) {
       newErrors.password = "Password is required";
     } else if (formData.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
+    }
+    
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
     }
     
     setErrors(newErrors);
@@ -70,38 +73,22 @@ const SigninForm = () => {
     }
 
     setIsSubmitting(true);
-    setApiError(""); // Clear any previous API errors
+    setApiError("");
     
     try {
-      const session = await signInAccount(formData);
-
-      if (!session) {
-        setApiError("Invalid credentials. Please check your email and password.");
-        return;
-      }
-
-      const isLoggedIn = await checkAuthUser();
-
-      if (isLoggedIn) {
-        setFormData({ email: "", password: "" });
-        navigate("/home");
-      } else {
-        setApiError("Login failed. Please try again.");
-      }
+      await resetPassword(token, formData.password);
+      setIsSuccess(true);
     } catch (error) {
-      console.error('Sign in error:', error);
+      console.error('Reset password error:', error);
       
-      // Extract specific error message from API response
       let errorMessage = "An error occurred. Please try again.";
       
       if (error.response?.data?.error) {
         errorMessage = error.response.data.error;
       } else if (error.response?.data?.detail) {
         errorMessage = error.response.data.detail;
-      } else if (error.response?.status === 401) {
-        errorMessage = "Invalid credentials. Please check your email and password.";
       } else if (error.response?.status === 400) {
-        errorMessage = "Invalid request. Please check your input.";
+        errorMessage = "Invalid or expired reset token.";
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -112,15 +99,41 @@ const SigninForm = () => {
     }
   };
 
+  if (isSuccess) {
+    return (
+      <div className="sm:w-420 flex-center flex-col">
+        <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-6">
+          <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+
+        <h2 className="h3-bold md:h2-bold text-center mb-4">
+          Password reset successful!
+        </h2>
+        <p className="text-light-3 small-medium md:base-regular text-center mb-8">
+          Your password has been successfully updated. You can now log in with your new password.
+        </p>
+
+        <Link
+          to="/sign-in"
+          className="w-full h-10 bg-primary-500 text-white rounded-md font-medium hover:bg-primary-600 transition-colors flex items-center justify-center"
+        >
+          Go to login
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="sm:w-420 flex-center flex-col">
       <img src="/assets/images/logo.svg" alt="logo" />
 
       <h2 className="h3-bold md:h2-bold pt-5 sm:pt-12">
-        Log in to your account
+        Reset your password
       </h2>
-      <p className="text-light-3 small-medium md:base-regular mt-2">
-        Welcome back! Please enter your details.
+      <p className="text-light-3 small-medium md:base-regular mt-2 text-center">
+        Enter your new password below.
       </p>
       
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full mt-4">
@@ -131,26 +144,8 @@ const SigninForm = () => {
         )}
         
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-light-1 mb-2">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
-            placeholder="Enter your email"
-          />
-          {errors.email && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.email}</p>
-          )}
-        </div>
-
-        <div>
           <label htmlFor="password" className="block text-sm font-medium text-light-1 mb-2">
-            Password
+            New password
           </label>
           <div className="relative">
             <input
@@ -160,7 +155,7 @@ const SigninForm = () => {
               value={formData.password}
               onChange={handleChange}
               className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              placeholder="Enter your password"
+              placeholder="Enter your new password"
             />
             <button
               type="button"
@@ -179,34 +174,56 @@ const SigninForm = () => {
           )}
         </div>
 
+        <div>
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-light-1 mb-2">
+            Confirm new password
+          </label>
+          <div className="relative">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              placeholder="Confirm your new password"
+            />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-light-1 hover:text-primary-500 transition-colors"
+            >
+              <img
+                src={showConfirmPassword ? "/assets/icons/eye-slash.svg" : "/assets/icons/eye.svg"}
+                alt={showConfirmPassword ? "Hide password" : "Show password"}
+                className="w-5 h-5 filter brightness-0 invert"
+              />
+            </button>
+          </div>
+          {errors.confirmPassword && (
+            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.confirmPassword}</p>
+          )}
+        </div>
+
         <button
           type="submit"
-          disabled={isSubmitting || isLoading || isUserLoading}
+          disabled={isSubmitting || isLoading}
           className="w-full h-10 bg-primary-500 text-white rounded-md font-medium hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isLoading || isUserLoading ? "Loading..." : "Log in"}
+          {isSubmitting || isLoading ? "Updating..." : "Update password"}
         </button>
 
         <div className="text-center">
           <Link
-            to="/forgot-password"
+            to="/sign-in"
             className="text-primary-500 text-small-semibold hover:text-primary-400 transition-colors"
           >
-            Forgot your password?
+            Back to login
           </Link>
         </div>
-
-        <p className="text-small-regular text-light-2 text-center mt-2">
-          Don&apos;t have an account?
-          <Link
-            to="/sign-up"
-            className="text-primary-500 text-small-semibold ml-1">
-            Sign up
-          </Link>
-        </p>
       </form>
     </div>
   );
 };
 
-export default SigninForm;
+export default ResetPasswordForm;

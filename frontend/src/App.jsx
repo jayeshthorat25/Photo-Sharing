@@ -15,6 +15,8 @@ import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import SignupForm from "@/_auth/forms/SignupForm";
 import SigninForm from "@/_auth/forms/SigninForm";
+import ForgotPassword from "@/_auth/pages/ForgotPassword";
+import ResetPassword from "@/_auth/pages/ResetPassword";
 import { ToastProvider } from "@/components/ui/SimpleToast";
 import { SavedPostsProvider } from "@/context/SavedPostsContext";
 
@@ -33,6 +35,8 @@ const App = () => {
         <Route element={<AuthLayout />}>
           <Route path="/sign-in" element={<SigninForm />} />
           <Route path="/sign-up" element={<SignupForm />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
         </Route>
 
         {/* shared post route - accessible without authentication */}
