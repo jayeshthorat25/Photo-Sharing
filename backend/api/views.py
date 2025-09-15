@@ -9,6 +9,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
+from rest_framework.exceptions import PermissionDenied
 import secrets
 from datetime import timedelta
 from .models import User, Post, Comment, SavedPost
@@ -253,7 +254,23 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
 
     def get_queryset(self):
-        return Comment.objects.filter(user=self.request.user)
+        # Allow users to access their own comments OR comments on their posts
+        return Comment.objects.filter(
+            Q(user=self.request.user) | Q(post__user=self.request.user)
+        ).select_related('user', 'post__user')
+
+    def perform_update(self, serializer):
+        # Only allow comment owner to update their comment
+        comment = self.get_object()
+        if comment.user != self.request.user:
+            raise PermissionDenied("You can only edit your own comments.")
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        # Allow comment owner OR post owner to delete
+        if instance.user != self.request.user and instance.post.user != self.request.user:
+            raise PermissionDenied("You can only delete your own comments or comments on your posts.")
+        instance.delete()
 
 
 class CommentPinView(APIView):
