@@ -13,6 +13,7 @@ class User(AbstractUser):
     location = models.CharField(max_length=255, blank=True)
     website = models.URLField(blank=True)
     image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path only
+    is_private = models.BooleanField(default=False)  # Privacy setting for profile
     reset_token = models.CharField(max_length=100, blank=True, null=True)
     reset_token_expires = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -56,6 +57,7 @@ class Post(models.Model):
     image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path only
     location = models.CharField(max_length=255, blank=True)
     tags = models.CharField(max_length=500, blank=True)
+    is_private = models.BooleanField(default=False)  # Privacy setting for individual posts
     likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

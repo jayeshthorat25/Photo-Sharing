@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 
 import { useUserContext } from "@/context/AuthContext";
 import { FileUploader } from "@/components/shared";
+import { PostPrivacyToggle } from "@/components/ui";
 import { useCreatePost, useUpdatePost } from "@/hooks/useQueries";
 
 const PostForm = ({ post, action }) => {
@@ -19,6 +20,7 @@ const PostForm = ({ post, action }) => {
     caption: post ? post?.caption : "",
     location: post ? post.location : "",
     tags: post ? (Array.isArray(post.tags) ? post.tags.join(",") : post.tags || "") : "",
+    is_private: post ? post.is_private : false,
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -31,6 +33,7 @@ const PostForm = ({ post, action }) => {
         caption: post.caption || "",
         location: post.location || "",
         tags: post.tags ? (Array.isArray(post.tags) ? post.tags.join(",") : (post.tags || "")) : "",
+        is_private: post.is_private || false,
       };
       setFormData(newFormData);
     }
@@ -50,6 +53,14 @@ const PostForm = ({ post, action }) => {
         [name]: ""
       }));
     }
+  };
+
+  // Handle privacy toggle
+  const handlePrivacyToggle = (isPrivate) => {
+    setFormData(prev => ({
+      ...prev,
+      is_private: isPrivate
+    }));
   };
 
   // Simple validation
@@ -178,6 +189,13 @@ const PostForm = ({ post, action }) => {
             onChange={handleChange}
             className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Art, Expression, Learn"
+          />
+        </div>
+
+        <div className="bg-dark-4 p-4 rounded-lg">
+          <PostPrivacyToggle
+            isPrivate={formData.is_private}
+            onToggle={handlePrivacyToggle}
           />
         </div>
 

@@ -2,7 +2,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import SimpleButton from "@/components/ui/SimpleButton";
-import { Loader } from "@/components/shared";
+import { Loader, PrivacyMessage } from "@/components/shared";
 import { GridPostList, PostStats, CommentSection } from "@/components/shared";
 import PostOptionsMenu from "@/components/ui/PostOptionsMenu";
 import ConfirmationModal from "@/components/ui/ConfirmationModal";
@@ -90,6 +90,11 @@ const PostDetails = () => {
             </SimpleButton>
           </div>
         </div>
+      ) : post.is_private && String(user?.id) !== String(post?.user?.id) ? (
+        <PrivacyMessage 
+          type="post" 
+          isOwner={false}
+        />
       ) : (
         <div className="post_details-card">
           <img

@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from django.db.models import Q
+from django.db import models
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -82,6 +83,11 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
         if self.request.method in ['PATCH', 'PUT']:
             return UserUpdateSerializer
         return UserSerializer
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class UserListView(generics.ListAPIView):
@@ -108,6 +114,11 @@ class UserDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return User.objects.prefetch_related('posts__likes', 'posts__comments').all()
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class PostListView(generics.ListCreateAPIView):
@@ -122,7 +133,13 @@ class PostListView(generics.ListCreateAPIView):
     def get_queryset(self):
         offset = int(self.request.query_params.get('offset', 0))
         limit = 20
-        return Post.objects.select_related('user').prefetch_related('comments', 'likes')[offset:offset+limit]
+        # Filter out private posts from other users
+        queryset = Post.objects.select_related('user').prefetch_related('comments', 'likes')
+        # Only show public posts or posts from the current user
+        queryset = queryset.filter(
+            models.Q(is_private=False) | models.Q(user=self.request.user)
+        )
+        return queryset[offset:offset+limit]
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -134,7 +151,13 @@ class RecentPostsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return Post.objects.select_related('user').prefetch_related('comments', 'likes')[:10]
+        # Filter out private posts from other users
+        queryset = Post.objects.select_related('user').prefetch_related('comments', 'likes')
+        # Only show public posts or posts from the current user
+        queryset = queryset.filter(
+            models.Q(is_private=False) | models.Q(user=self.request.user)
+        )
+        return queryset[:10]
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -144,7 +167,12 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     lookup_field = 'id'
 
     def get_queryset(self):
-        return Post.objects.select_related('user').prefetch_related('likes', 'comments')
+        queryset = Post.objects.select_related('user').prefetch_related('likes', 'comments')
+        # Only allow access to public posts or posts from the current user
+        queryset = queryset.filter(
+            models.Q(is_private=False) | models.Q(user=self.request.user)
+        )
+        return queryset
 
     def get_serializer_class(self):
         if self.request.method in ['PATCH', 'PUT']:
@@ -184,11 +212,16 @@ class PostSearchView(generics.ListAPIView):
     def get_queryset(self):
         search_term = self.request.query_params.get('q', '')
         if search_term:
-            return Post.objects.filter(
+            queryset = Post.objects.filter(
                 Q(caption__icontains=search_term) |
                 Q(tags__icontains=search_term) |
                 Q(location__icontains=search_term)
             ).select_related('user').prefetch_related('likes', 'comments')
+            # Only show public posts or posts from the current user
+            queryset = queryset.filter(
+                models.Q(is_private=False) | models.Q(user=self.request.user)
+            )
+            return queryset
         return Post.objects.none()
 
 
@@ -219,7 +252,11 @@ class UserPostsView(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
-        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments', 'likes')
+        queryset = Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments', 'likes')
+        # If viewing another user's posts, only show public posts
+        if str(user_id) != str(self.request.user.id):
+            queryset = queryset.filter(is_private=False)
+        return queryset
 
 
 class PublicUserPostsView(generics.ListAPIView):
@@ -337,6 +374,28 @@ class SavedPostDetailView(generics.DestroyAPIView):
 
     def get_queryset(self):
         return SavedPost.objects.filter(user=self.request.user)
+
+
+@api_view(['PATCH'])
+@permission_classes([permissions.IsAuthenticated])
+def toggle_user_privacy(request):
+    """View for toggling user privacy setting"""
+    user = request.user
+    is_private = request.data.get('is_private')
+    
+    if is_private is None:
+        return Response(
+            {'error': 'is_private field is required'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+    
+    user.is_private = is_private
+    user.save()
+    
+    return Response({
+        'message': f'Profile privacy set to {"private" if is_private else "public"}',
+        'is_private': user.is_private
+    })
 
 
 @api_view(['POST'])

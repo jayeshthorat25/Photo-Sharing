@@ -15,6 +15,7 @@ import {
   likePost,
   getUserById,
   updateUser,
+  toggleUserPrivacy,
   getRecentPosts,
   getInfinitePosts,
   searchPosts,
@@ -133,6 +134,7 @@ export const useGetUserById = (userId) => {
   return useApiCall(apiFunction, !!userId); // Auto-fetch if userId exists
 };
 export const useUpdateUser = () => useApiCall(updateUser);
+export const useToggleUserPrivacy = () => useApiCall(toggleUserPrivacy);
 
 // ============================================================
 // COMMENT QUERIES
