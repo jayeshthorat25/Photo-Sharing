@@ -11,7 +11,7 @@ import SimpleButton from "@/components/ui/SimpleButton";
 import { LikedPosts } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById } from "@/hooks/useQueries";
-import { GridPostList, Loader } from "@/components/shared";
+import { GridPostList, Loader, PrivacyMessage } from "@/components/shared";
 import { getImageUrl } from "@/lib/api";
 
 const StatBlock = ({ value, label }) => (
@@ -26,7 +26,10 @@ const Profile = () => {
   const { user } = useUserContext();
   const { pathname } = useLocation();
 
-  const { data: currentUser } = useGetUserById(id || "");
+  // Ensure we have a valid user ID - use current user's ID if no ID provided
+  const userId = id || user.id;
+  const { data: currentUser } = useGetUserById(userId);
+
 
   if (!currentUser)
     return (
@@ -88,7 +91,7 @@ const Profile = () => {
           <div className="flex justify-center gap-4">
             <div className={`${user.id !== currentUser.id && "hidden"}`}>
               <Link
-                to={`/update-profile/${currentUser.id}`}
+                to={`/update-profile/${userId}`}
                 className={`h-12 bg-dark-4 px-5 text-light-1 flex-center gap-2 rounded-lg ${
                   user.id !== currentUser.id && "hidden"
                 }`}>
@@ -110,9 +113,9 @@ const Profile = () => {
       {currentUser.id === user.id && (
         <div className="flex max-w-5xl w-full">
           <Link
-            to={`/profile/${id}`}
+            to={`/profile/${userId}`}
             className={`profile-tab rounded-l-lg ${
-              pathname === `/profile/${id}` && "!bg-dark-3"
+              pathname === `/profile/${userId}` && "!bg-dark-3"
             }`}>
             <img
               src={"/assets/icons/posts.svg"}
@@ -123,9 +126,9 @@ const Profile = () => {
             Posts
           </Link>
           <Link
-            to={`/profile/${id}/liked-posts`}
+            to={`/profile/${userId}/liked-posts`}
             className={`profile-tab rounded-r-lg ${
-              pathname === `/profile/${id}/liked-posts` && "!bg-dark-3"
+              pathname === `/profile/${userId}/liked-posts` && "!bg-dark-3"
             }`}>
             <img
               src={"/assets/icons/like.svg"}
@@ -141,7 +144,19 @@ const Profile = () => {
       <Routes>
         <Route
           index
-          element={<GridPostList posts={currentUser.posts || []} showUser={false} />}
+          element={
+            // Show privacy message only if viewing another user's private profile
+            currentUser.is_private && String(currentUser.id) !== String(user.id) ? (
+              <PrivacyMessage 
+                type="profile" 
+                username={currentUser.username}
+                isOwner={false}
+              />
+            ) : (
+              // Always show posts for the profile owner, or if the profile is public
+              <GridPostList posts={currentUser.posts || []} showUser={false} />
+            )
+          }
         />
         {currentUser.id === user.id && (
           <Route path="/liked-posts" element={<LikedPosts />} />

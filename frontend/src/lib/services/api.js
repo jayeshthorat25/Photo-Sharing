@@ -79,6 +79,7 @@ export const updateUser = async (user) => {
     formData.append('bio', user.bio);
     formData.append('location', user.location || '');
     formData.append('website', user.website || '');
+    formData.append('is_private', user.is_private || false);
     
     if (user.file && user.file.length > 0) {
       formData.append('image', user.file[0]);
@@ -96,6 +97,18 @@ export const updateUser = async (user) => {
   }
 };
 
+export const toggleUserPrivacy = async (isPrivate) => {
+  try {
+    const response = await api.patch('/api/auth/toggle-privacy/', {
+      is_private: isPrivate
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error toggling user privacy:', error);
+    throw error;
+  }
+};
+
 // ============================================================
 // POST SERVICES
 // ============================================================
@@ -104,6 +117,7 @@ export const createPost = async (post) => {
   try {
     const formData = new FormData();
     formData.append('caption', post.caption);
+    formData.append('is_private', post.is_private || false);
     
     if (post.file && post.file.length > 0) {
       formData.append('image', post.file[0]);
@@ -189,6 +203,7 @@ export const updatePost = async (post) => {
   try {
     const formData = new FormData();
     formData.append('caption', post.caption);
+    formData.append('is_private', post.is_private || false);
     
     if (post.file && post.file.length > 0) {
       formData.append('image', post.file[0]);

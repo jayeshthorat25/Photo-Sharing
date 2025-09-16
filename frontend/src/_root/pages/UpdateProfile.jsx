@@ -2,8 +2,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 
 import { ProfileUploader, Loader } from "@/components/shared";
+import { PrivacyToggle } from "@/components/ui";
 import { useUserContext } from "@/context/AuthContext";
-import { useGetUserById, useUpdateUser } from "@/hooks/useQueries";
+import { useGetUserById, useUpdateUser, useToggleUserPrivacy } from "@/hooks/useQueries";
 
 const UpdateProfile = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const UpdateProfile = () => {
   // Queries
   const { data: currentUser } = useGetUserById(userId);
   const { callApi: updateUser, isLoading: isLoadingUpdate } = useUpdateUser();
+  const { callApi: togglePrivacy } = useToggleUserPrivacy();
 
   // Simple form state
   const [formData, setFormData] = useState({
@@ -25,6 +27,7 @@ const UpdateProfile = () => {
     bio: user.bio || "",
     location: user.location || "",
     website: user.website || "",
+    is_private: user.is_private || false,
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +46,25 @@ const UpdateProfile = () => {
         ...prev,
         [name]: ""
       }));
+    }
+  };
+
+  // Handle privacy toggle
+  const handlePrivacyToggle = async (isPrivate) => {
+    try {
+      await togglePrivacy(isPrivate);
+      setFormData(prev => ({
+        ...prev,
+        is_private: isPrivate
+      }));
+      setUser(prev => ({
+        ...prev,
+        is_private: isPrivate
+      }));
+      // Note: The profile page will automatically refresh the currentUser data
+      // because the useGetUserById hook will refetch when the component re-renders
+    } catch (error) {
+      console.error('Error toggling privacy:', error);
     }
   };
 
@@ -74,6 +96,7 @@ const UpdateProfile = () => {
         bio: formData.bio,
         location: formData.location,
         website: formData.website,
+        is_private: formData.is_private,
         file: selectedFiles, // Pass selected files for profile image
         imageUrl: currentUser?.imageUrl || "",
         imageId: currentUser?.imageId || "",
@@ -86,6 +109,7 @@ const UpdateProfile = () => {
           bio: updatedUser.bio,
           location: updatedUser.location,
           website: updatedUser.website,
+          is_private: updatedUser.is_private,
           imageUrl: updatedUser.imageUrl || "",
         });
         navigate(`/profile/${userId}`);
@@ -222,6 +246,15 @@ const UpdateProfile = () => {
                 onChange={handleChange}
                 className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="https://yourwebsite.com"
+              />
+            </div>
+
+            <div className="bg-dark-4 p-4 rounded-lg">
+              <PrivacyToggle
+                isPrivate={formData.is_private}
+                onToggle={handlePrivacyToggle}
+                label="Private Profile"
+                description="When enabled, other users cannot see your posts unless you share them directly."
               />
             </div>
 

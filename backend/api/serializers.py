@@ -31,12 +31,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'name', 'bio', 'location', 'website', 'imageUrl', 'posts', 'created_at')
+        fields = ('id', 'username', 'email', 'name', 'bio', 'location', 'website', 'imageUrl', 'is_private', 'posts', 'created_at')
         read_only_fields = ('id', 'created_at')
 
     def get_posts(self, obj):
         # Get user's posts and serialize them with minimal data to avoid circular reference
+        request = self.context.get('request')
         posts = obj.posts.all().order_by('-created_at')
+        
+        # Filter out private posts if the requesting user is not the profile owner
+        if request and request.user.is_authenticated:
+            if str(request.user.id) != str(obj.id):
+                # If viewing another user's profile, only show public posts
+                posts = posts.filter(is_private=False)
+        
         return [
             {
                 'id': post.id,
@@ -59,13 +67,14 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('name', 'bio', 'location', 'website', 'image', 'imageUrl')
+        fields = ('name', 'bio', 'location', 'website', 'image', 'imageUrl', 'is_private')
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.bio = validated_data.get('bio', instance.bio)
         instance.location = validated_data.get('location', instance.location)
         instance.website = validated_data.get('website', instance.website)
+        instance.is_private = validated_data.get('is_private', instance.is_private)
         if 'image' in validated_data:
             # Store the image file temporarily for processing in save method
             instance._image_file = validated_data['image']
@@ -84,7 +93,7 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'user', 'caption', 'imageUrl', 'location', 'tags', 
+        fields = ('id', 'user', 'caption', 'imageUrl', 'location', 'tags', 'is_private',
                  'likes_count', 'is_liked', 'comments_count', 'is_edited', 'created_at', 'updated_at')
         read_only_fields = ('id', 'created_at', 'updated_at')
 
@@ -114,7 +123,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'user', 'caption', 'imageUrl', 'location', 'tags', 
+        fields = ('id', 'user', 'caption', 'imageUrl', 'location', 'tags', 'is_private',
                  'likes_count', 'is_liked', 'comments_count', 'is_edited', 'created_at', 'updated_at')
         read_only_fields = ('id', 'created_at', 'updated_at')
 
@@ -148,7 +157,7 @@ class PostCreateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = ('caption', 'image', 'location', 'tags')
+        fields = ('caption', 'image', 'location', 'tags', 'is_private')
 
     def create(self, validated_data):
         validated_data['user'] = self.context['request'].user
@@ -168,7 +177,7 @@ class PostUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Post
-        fields = ('caption', 'image', 'location', 'tags')
+        fields = ('caption', 'image', 'location', 'tags', 'is_private')
 
     def update(self, instance, validated_data):
         # Store the image file temporarily for processing in save method

@@ -10,3 +10,4 @@ export { default as ProfileUploader } from "./ProfileUploader";
 export { default as PostStats } from "./PostStats";
 export { default as Comment } from "./Comment";
 export { default as CommentSection } from "./CommentSection";
+export { default as PrivacyMessage } from "./PrivacyMessage";
