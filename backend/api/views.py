@@ -133,11 +133,15 @@ class PostListView(generics.ListCreateAPIView):
     def get_queryset(self):
         offset = int(self.request.query_params.get('offset', 0))
         limit = 20
-        # Filter out private posts from other users
+        # Filter out posts from private profiles and private posts
         queryset = Post.objects.select_related('user').prefetch_related('comments', 'likes')
-        # Only show public posts or posts from the current user
+        # Only show posts that meet these criteria:
+        # 1. Posts from public profiles (user.is_private=False) AND public posts (post.is_private=False)
+        # 2. Posts from the current user (regardless of profile or post privacy)
         queryset = queryset.filter(
-            models.Q(is_private=False) | models.Q(user=self.request.user)
+            models.Q(
+                models.Q(user__is_private=False) & models.Q(is_private=False)
+            ) | models.Q(user=self.request.user)
         )
         return queryset[offset:offset+limit]
 
@@ -151,13 +155,27 @@ class RecentPostsView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # Filter out private posts from other users
+        # Filter out posts from private profiles and private posts
         queryset = Post.objects.select_related('user').prefetch_related('comments', 'likes')
-        # Only show public posts or posts from the current user
+        
+        # Only show posts that meet these criteria:
+        # 1. Posts from public profiles (user.is_private=False) AND public posts (post.is_private=False)
+        # 2. Posts from the current user (regardless of profile or post privacy)
         queryset = queryset.filter(
-            models.Q(is_private=False) | models.Q(user=self.request.user)
+            models.Q(
+                models.Q(user__is_private=False) & models.Q(is_private=False)
+            ) | models.Q(user=self.request.user)
         )
+        
         return queryset[:10]
+    
+    def list(self, request, *args, **kwargs):
+        response = super().list(request, *args, **kwargs)
+        # Add cache-busting headers to prevent frontend caching
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -217,9 +235,13 @@ class PostSearchView(generics.ListAPIView):
                 Q(tags__icontains=search_term) |
                 Q(location__icontains=search_term)
             ).select_related('user').prefetch_related('likes', 'comments')
-            # Only show public posts or posts from the current user
+            # Only show posts that meet these criteria:
+            # 1. Posts from public profiles (user.is_private=False) AND public posts (post.is_private=False)
+            # 2. Posts from the current user (regardless of profile or post privacy)
             queryset = queryset.filter(
-                models.Q(is_private=False) | models.Q(user=self.request.user)
+                models.Q(
+                    models.Q(user__is_private=False) & models.Q(is_private=False)
+                ) | models.Q(user=self.request.user)
             )
             return queryset
         return Post.objects.none()
