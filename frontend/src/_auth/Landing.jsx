@@ -47,7 +47,7 @@ const Landing = () => {
                   </span>
                 </h1>
                 <p className="text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl">
-                  Capture, edit, and share life's best memories with the world. 
+                  Capture and share life's best memories with the world. 
                   SnapGram makes it easy to tell your story through beautiful photos.
                 </p>
               </div>
@@ -62,7 +62,7 @@ const Landing = () => {
                     </svg>
                   </div>
                   <h3 className="text-lg font-semibold text-white mb-2">Capture</h3>
-                  <p className="text-white/80 text-sm">Take stunning photos with our built-in camera</p>
+                  <p className="text-white/80 text-sm">Share stunning photos and explore</p>
                 </div>
                 
                 <div className="text-center lg:text-left">
@@ -71,8 +71,8 @@ const Landing = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Edit</h3>
-                  <p className="text-white/80 text-sm">Enhance your photos with powerful editing tools</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">Explore</h3>
+                  <p className="text-white/80 text-sm">From your world to theirs in a snap</p>
                 </div>
                 
                 <div className="text-center lg:text-left">
