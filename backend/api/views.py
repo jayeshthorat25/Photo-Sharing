@@ -445,9 +445,12 @@ def forgot_password(request):
             [user.email],
             fail_silently=False,
         )
+        print(f"Password reset email sent successfully to {user.email}")
     except Exception as e:
         print(f"Email sending failed: {e}")
+        # Log the error but don't reveal it to the user for security
         # In production, you might want to use a proper email service like SendGrid
+        # For now, we'll still return success to not reveal if email exists
     
     return Response({'message': 'If an account with this email exists, a password reset link has been sent.'}, 
                    status=status.HTTP_200_OK)

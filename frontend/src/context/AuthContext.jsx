@@ -72,6 +72,8 @@ export function AuthProvider({ children }) {
 			const currentPath = window.location.pathname;
 			if (!currentPath.includes('/sign-in') && 
 				!currentPath.includes('/sign-up') && 
+				!currentPath.includes('/forgot-password') &&
+				!currentPath.includes('/reset-password/') &&
 				!currentPath.includes('/shared/') && 
 				currentPath !== '/') {
 				navigate("/");
