@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
-from .utils import copy_file_to_frontend, delete_file_from_frontend
+from .cloudinary_utils import upload_to_cloudinary, delete_from_cloudinary
 
 
 class User(AbstractUser):
@@ -12,7 +12,7 @@ class User(AbstractUser):
     bio = models.TextField(blank=True, max_length=500)
     location = models.CharField(max_length=255, blank=True)
     website = models.URLField(blank=True)
-    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path only
+    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store Cloudinary URL
     is_private = models.BooleanField(default=False)  # Privacy setting for profile
     reset_token = models.CharField(max_length=100, blank=True, null=True)
     reset_token_expires = models.DateTimeField(blank=True, null=True)
@@ -30,23 +30,23 @@ class User(AbstractUser):
         return self.image_path
 
     def save(self, *args, **kwargs):
-        # Handle image upload and copy to frontend
+        # Handle image upload to Cloudinary
         if hasattr(self, '_image_file') and self._image_file:
-            # Delete old image from frontend if exists
+            # Delete old image from Cloudinary if exists
             if self.image_path:
-                delete_file_from_frontend(self.image_path)
+                delete_from_cloudinary(self.image_path)
             
-            # Copy new image to frontend
-            frontend_path = copy_file_to_frontend(self._image_file, 'profiles')
-            if frontend_path:
-                self.image_path = frontend_path
+            # Upload new image to Cloudinary with original filename
+            cloudinary_url = upload_to_cloudinary(self._image_file, 'snapgram/profiles')
+            if cloudinary_url:
+                self.image_path = cloudinary_url
         
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        # Delete image from frontend when user is deleted
+        # Delete image from Cloudinary when user is deleted
         if self.image_path:
-            delete_file_from_frontend(self.image_path)
+            delete_from_cloudinary(self.image_path)
         super().delete(*args, **kwargs)
 
 
@@ -54,7 +54,7 @@ class Post(models.Model):
     """Post model for social media posts"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     caption = models.TextField()
-    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store frontend path only
+    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store Cloudinary URL
     location = models.CharField(max_length=255, blank=True)
     tags = models.CharField(max_length=500, blank=True)
     is_private = models.BooleanField(default=False)  # Privacy setting for individual posts
@@ -77,23 +77,23 @@ class Post(models.Model):
         return self.likes.count()
 
     def save(self, *args, **kwargs):
-        # Handle image upload and copy to frontend
+        # Handle image upload to Cloudinary
         if hasattr(self, '_image_file') and self._image_file:
-            # Delete old image from frontend if exists
+            # Delete old image from Cloudinary if exists
             if self.image_path:
-                delete_file_from_frontend(self.image_path)
+                delete_from_cloudinary(self.image_path)
             
-            # Copy new image to frontend
-            frontend_path = copy_file_to_frontend(self._image_file, 'posts')
-            if frontend_path:
-                self.image_path = frontend_path
+            # Upload new image to Cloudinary with original filename
+            cloudinary_url = upload_to_cloudinary(self._image_file, 'snapgram/posts')
+            if cloudinary_url:
+                self.image_path = cloudinary_url
         
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        # Delete image from frontend when post is deleted
+        # Delete image from Cloudinary when post is deleted
         if self.image_path:
-            delete_file_from_frontend(self.image_path)
+            delete_from_cloudinary(self.image_path)
         super().delete(*args, **kwargs)
 
 

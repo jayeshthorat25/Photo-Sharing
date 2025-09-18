@@ -18,7 +18,21 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 ```
 
-### 3. Database Setup
+### 3. Setup Cloudinary (Optional but Recommended)
+
+For cloud-based image storage, set up Cloudinary:
+
+1. Create a free account at [cloudinary.com](https://cloudinary.com)
+2. Get your credentials from the dashboard
+3. Update your `.env` file with Cloudinary credentials
+4. Run the setup script:
+   ```bash
+   python setup_cloudinary.py
+   ```
+
+See [CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md) for detailed instructions.
+
+### 4. Database Setup
 
 1. Create MySQL database:
 ```sql
@@ -33,13 +47,13 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 4. Create Superuser
+### 5. Create Superuser
 
 ```bash
 python manage.py createsuperuser
 ```
 
-### 5. Run Server
+### 6. Run Server
 
 ```bash
 python manage.py runserver
@@ -84,13 +98,21 @@ Server will be available at `http://127.0.0.1:8000`
 ## Features
 
 - JWT Authentication
-- Image upload support
+- Cloud-based image storage (Cloudinary) with organized folder structure
+- Privacy controls (private profiles and posts)
 - Like/unlike functionality
 - Comment system
 - Save posts
 - Search functionality
 - Pagination
 - CORS support
+
+### Image Storage Organization
+
+Images are stored in Cloudinary with a clean folder structure:
+- **Profile images**: `snapgram/profiles/`
+- **Post images**: `snapgram/posts/`
+- **Original filenames**: Files keep their original names for easy identification
 
 ## Development
 
@@ -125,3 +147,4 @@ Key settings in `snapgram_backend/settings.py`:
 - MySQL Client 2.2.7
 - Pillow 11.3.0
 - Simple JWT 5.3.0
+- Cloudinary 1.41.0
