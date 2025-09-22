@@ -150,7 +150,7 @@ const ForgotPasswordForm = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Enter your email address"
           />
           {errors.email && (

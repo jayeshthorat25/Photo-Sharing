@@ -154,7 +154,7 @@ const ResetPasswordForm = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter your new password"
             />
             <button
@@ -185,7 +185,7 @@ const ResetPasswordForm = () => {
               name="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Confirm your new password"
             />
             <button
