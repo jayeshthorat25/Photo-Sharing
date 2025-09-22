@@ -101,6 +101,7 @@ const PostDetails = () => {
             src={getImageUrl(post?.imageUrl) || "/assets/icons/profile-placeholder.svg"}
             alt="creator"
             className="post_details-img"
+            style={{ height: 'auto' }}
           />
 
           <div className="post_details-info">
@@ -173,12 +174,44 @@ const PostDetails = () => {
         <hr className="border w-full border-dark-4/80" />
 
         <h3 className="body-bold md:h3-bold w-full my-10">
-          More Related Posts
+          Other posts by {post?.user?.name}
         </h3>
         {isUserPostLoading || !relatedPosts ? (
           <Loader />
+        ) : relatedPosts.length > 0 ? (
+          <div className="grid-container">
+            {relatedPosts.slice(0, 3).map((relatedPost) => (
+              <div key={relatedPost.id} className="relative min-w-80 aspect-square">
+                <Link 
+                  to={`/posts/${relatedPost.id}`} 
+                  className="grid-post_link"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
+                  <img
+                    src={getImageUrl(relatedPost.imageUrl)}
+                    alt="post"
+                    className="h-full w-full object-cover object-center"
+                  />
+                </Link>
+                <div className="grid-post_user">
+                  <div className="flex items-center justify-start gap-2 flex-1">
+                    <img
+                      src={
+                        getImageUrl(relatedPost.user.imageUrl) ||
+                        "/assets/icons/profile-placeholder.svg"
+                      }
+                      alt="creator"
+                      className="w-8 h-8 rounded-full"
+                    />
+                    <p className="line-clamp-1">{relatedPost.user.name}</p>
+                  </div>
+                  <PostStats post={relatedPost} userId={user.id} />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
-          <GridPostList posts={relatedPosts} />
+          <p className="text-light-3 text-center py-8">No other posts by this user.</p>
         )}
       </div>
 

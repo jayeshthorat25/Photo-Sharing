@@ -19,6 +19,7 @@ from .serializers import (
     PostSerializer, PostListSerializer, PostCreateSerializer, PostUpdateSerializer, CommentSerializer, SavedPostSerializer,
     SavedPostCreateSerializer
 )
+from .email_utils import send_welcome_email
 
 
 class UserRegistrationView(generics.CreateAPIView):
@@ -32,6 +33,9 @@ class UserRegistrationView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         
+        # Send welcome email
+        send_welcome_email(user)
+        
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
         return Response({
@@ -39,6 +43,7 @@ class UserRegistrationView(generics.CreateAPIView):
             'refresh': str(refresh),
             'user': UserSerializer(user).data
         }, status=status.HTTP_201_CREATED)
+    
 
 
 class LoginView(APIView):

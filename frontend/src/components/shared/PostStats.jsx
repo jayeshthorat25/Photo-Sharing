@@ -33,12 +33,20 @@ const PostStats = ({ post, userId }) => {
 
   // Initialize likes state based on post.is_liked
   useEffect(() => {
-    if (post.is_liked) {
+    if (post.is_liked === true) {
       setLikes([userId]);
-    } else {
+    } else if (post.is_liked === false) {
       setLikes([]);
     }
+    // If post.is_liked is undefined, we'll keep the current state
   }, [post.is_liked, userId]);
+
+  // Also initialize like count from post data
+  useEffect(() => {
+    if (post.likes_count !== undefined) {
+      setLikeCount(post.likes_count);
+    }
+  }, [post.likes_count]);
 
   const handleLikePost = async (e) => {
     e.stopPropagation();

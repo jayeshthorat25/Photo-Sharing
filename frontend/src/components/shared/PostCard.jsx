@@ -113,6 +113,7 @@ const PostCard = ({ post, onPostDeleted }) => {
           src={getImageUrl(post.imageUrl) || "/assets/icons/profile-placeholder.svg"}
           alt="post image"
           className="post-card_img"
+          style={{ height: 'auto' }}
         />
       </Link>
 

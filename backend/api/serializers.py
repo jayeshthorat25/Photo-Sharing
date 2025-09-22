@@ -31,7 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'name', 'bio', 'location', 'website', 'imageUrl', 'is_private', 'posts', 'created_at')
+        fields = ('id', 'username', 'email', 'name', 'bio', 'location', 'imageUrl', 'is_private', 'posts', 'created_at')
         read_only_fields = ('id', 'created_at')
 
     def get_posts(self, obj):
@@ -67,13 +67,12 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('name', 'bio', 'location', 'website', 'image', 'imageUrl', 'is_private')
+        fields = ('name', 'bio', 'location', 'image', 'imageUrl', 'is_private')
 
     def update(self, instance, validated_data):
         instance.name = validated_data.get('name', instance.name)
         instance.bio = validated_data.get('bio', instance.bio)
         instance.location = validated_data.get('location', instance.location)
-        instance.website = validated_data.get('website', instance.website)
         instance.is_private = validated_data.get('is_private', instance.is_private)
         if 'image' in validated_data:
             # Store the image file temporarily for processing in save method
