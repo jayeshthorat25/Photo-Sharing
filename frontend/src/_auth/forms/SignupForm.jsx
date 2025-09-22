@@ -188,7 +188,7 @@ const SignupForm = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Enter your full name"
           />
           {errors.name && (
@@ -206,7 +206,7 @@ const SignupForm = () => {
             name="username"
             value={formData.username}
             onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Enter your username"
           />
           {errors.username && (
@@ -224,7 +224,7 @@ const SignupForm = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
-            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+            className="w-full h-10 px-3 py-2 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
             placeholder="Enter your email"
           />
           {errors.email && (
@@ -243,7 +243,7 @@ const SignupForm = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Enter your password"
             />
             <button
@@ -274,7 +274,7 @@ const SignupForm = () => {
               name="password_confirm"
               value={formData.password_confirm}
               onChange={handleChange}
-              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full h-10 px-3 py-2 pr-10 bg-dark-4 border border-dark-4 rounded-md text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
               placeholder="Confirm your password"
             />
             <button

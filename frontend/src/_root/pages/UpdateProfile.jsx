@@ -162,7 +162,7 @@ const UpdateProfile = () => {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="Enter your name"
               />
               {errors.name && (
@@ -181,7 +181,7 @@ const UpdateProfile = () => {
                 value={formData.username}
                 onChange={handleChange}
                 disabled
-                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
                 placeholder="Username"
               />
             </div>
@@ -197,7 +197,7 @@ const UpdateProfile = () => {
                 value={formData.email}
                 onChange={handleChange}
                 disabled
-                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500 opacity-50 cursor-not-allowed"
                 placeholder="Email"
               />
             </div>
@@ -211,7 +211,7 @@ const UpdateProfile = () => {
                 name="bio"
                 value={formData.bio}
                 onChange={handleChange}
-                className="w-full min-h-[100px] px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar resize-none"
+                className="w-full min-h-[100px] px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500 custom-scrollbar resize-none"
                 placeholder="Tell us about yourself"
               />
             </div>
@@ -226,7 +226,7 @@ const UpdateProfile = () => {
                 name="location"
                 value={formData.location}
                 onChange={handleChange}
-                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-3 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="Where are you from?"
               />
             </div>
