@@ -10,7 +10,7 @@ import {
 import SimpleButton from "@/components/ui/SimpleButton";
 import { LikedPosts } from "@/_root/pages";
 import { useUserContext } from "@/context/AuthContext";
-import { useGetUserById } from "@/hooks/useQueries";
+import { useGetUserById, useGetUserPosts } from "@/hooks/useQueries";
 import { GridPostList, Loader, PrivacyMessage } from "@/components/shared";
 import { getImageUrl } from "@/lib/api";
 
@@ -29,6 +29,7 @@ const Profile = () => {
   // Ensure we have a valid user ID - use current user's ID if no ID provided
   const userId = id || user.id;
   const { data: currentUser } = useGetUserById(userId);
+  const { data: userPosts } = useGetUserPosts(userId);
 
 
   if (!currentUser)
@@ -60,30 +61,33 @@ const Profile = () => {
             </div>
 
             <div className="flex gap-8 mt-10 items-center justify-center xl:justify-start flex-wrap z-20">
-              <StatBlock value={currentUser.posts?.length || 0} label="Posts" />
+              <StatBlock value={userPosts?.documents?.length || currentUser.posts?.length || 0} label="Posts" />
             </div>
 
             <p className="small-medium md:base-medium text-center xl:text-left mt-7 max-w-screen-sm">
               {currentUser.bio}
             </p>
             
-            {(currentUser.location || currentUser.website) && (
+            {currentUser.location && (
               <div className="flex flex-col gap-2 mt-4 text-center xl:text-left">
-                {currentUser.location && (
-                  <p className="small-regular text-light-3">
-                    📍 {currentUser.location}
-                  </p>
-                )}
-                {currentUser.website && (
-                  <a 
-                    href={currentUser.website} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="small-regular text-primary-500 hover:text-primary-400"
+                <div className="flex items-center gap-2 justify-center xl:justify-start">
+                  <svg 
+                    width="16" 
+                    height="16" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-4 text-secondary-500"
                   >
-                    🔗 {currentUser.website}
-                  </a>
-                )}
+                    <path 
+                      d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" 
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <p className="small-regular text-light-3">
+                    {currentUser.location}
+                  </p>
+                </div>
               </div>
             )}
           </div>
@@ -154,7 +158,7 @@ const Profile = () => {
               />
             ) : (
               // Always show posts for the profile owner, or if the profile is public
-              <GridPostList posts={currentUser.posts || []} showUser={false} />
+              <GridPostList posts={userPosts?.documents || currentUser.posts || []} showUser={false} />
             )
           }
         />

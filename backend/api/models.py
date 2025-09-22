@@ -11,7 +11,6 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     bio = models.TextField(blank=True, max_length=500)
     location = models.CharField(max_length=255, blank=True)
-    website = models.URLField(blank=True)
     image_path = models.CharField(max_length=500, blank=True, null=True)  # Store Cloudinary URL
     is_private = models.BooleanField(default=False)  # Privacy setting for profile
     reset_token = models.CharField(max_length=100, blank=True, null=True)

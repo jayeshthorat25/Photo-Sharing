@@ -173,7 +173,7 @@ const SignupForm = () => {
               : "bg-red-500/10 border-red-500/20"
           }`}>
             <p className="text-sm" style={{ 
-              color: apiError.includes("successfully") ? '#22c55e' : '#ef4444' 
+              color: apiError.includes("successfully") ? '#22c55e' : '#FF5A5A' 
             }}>{apiError}</p>
           </div>
         )}
@@ -192,7 +192,7 @@ const SignupForm = () => {
             placeholder="Enter your full name"
           />
           {errors.name && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.name}</p>
+            <p className="text-sm mt-1 text-red">{errors.name}</p>
           )}
         </div>
 
@@ -210,7 +210,7 @@ const SignupForm = () => {
             placeholder="Enter your username"
           />
           {errors.username && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.username}</p>
+            <p className="text-sm mt-1 text-red">{errors.username}</p>
           )}
         </div>
 
@@ -228,7 +228,7 @@ const SignupForm = () => {
             placeholder="Enter your email"
           />
           {errors.email && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.email}</p>
+            <p className="text-sm mt-1 text-red">{errors.email}</p>
           )}
         </div>
 
@@ -259,7 +259,7 @@ const SignupForm = () => {
             </button>
           </div>
           {errors.password && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password}</p>
+            <p className="text-sm mt-1 text-red">{errors.password}</p>
           )}
         </div>
 
@@ -290,7 +290,7 @@ const SignupForm = () => {
             </button>
           </div>
           {errors.password_confirm && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password_confirm}</p>
+            <p className="text-sm mt-1 text-red">{errors.password_confirm}</p>
           )}
         </div>
 

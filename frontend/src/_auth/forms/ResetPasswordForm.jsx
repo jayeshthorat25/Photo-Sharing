@@ -139,7 +139,7 @@ const ResetPasswordForm = () => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full mt-4">
         {apiError && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-md p-3">
-            <p className="text-sm" style={{ color: '#ef4444' }}>{apiError}</p>
+            <p className="text-sm text-red">{apiError}</p>
           </div>
         )}
         
@@ -170,7 +170,7 @@ const ResetPasswordForm = () => {
             </button>
           </div>
           {errors.password && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.password}</p>
+            <p className="text-sm mt-1 text-red">{errors.password}</p>
           )}
         </div>
 
@@ -201,7 +201,7 @@ const ResetPasswordForm = () => {
             </button>
           </div>
           {errors.confirmPassword && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.confirmPassword}</p>
+            <p className="text-sm mt-1 text-red">{errors.confirmPassword}</p>
           )}
         </div>
 

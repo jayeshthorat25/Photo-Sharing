@@ -136,7 +136,7 @@ const ForgotPasswordForm = () => {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 w-full mt-4">
         {apiError && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-md p-3">
-            <p className="text-sm" style={{ color: '#ef4444' }}>{apiError}</p>
+            <p className="text-sm text-red">{apiError}</p>
           </div>
         )}
         
@@ -154,7 +154,7 @@ const ForgotPasswordForm = () => {
             placeholder="Enter your email address"
           />
           {errors.email && (
-            <p className="text-sm mt-1" style={{ color: '#ef4444' }}>{errors.email}</p>
+            <p className="text-sm mt-1 text-red">{errors.email}</p>
           )}
         </div>
 

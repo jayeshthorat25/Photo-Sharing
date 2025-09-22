@@ -26,7 +26,6 @@ const UpdateProfile = () => {
     email: user.email,
     bio: user.bio || "",
     location: user.location || "",
-    website: user.website || "",
     is_private: user.is_private || false,
   });
   const [errors, setErrors] = useState({});
@@ -95,7 +94,6 @@ const UpdateProfile = () => {
         name: formData.name,
         bio: formData.bio,
         location: formData.location,
-        website: formData.website,
         is_private: formData.is_private,
         file: selectedFiles, // Pass selected files for profile image
         imageUrl: currentUser?.imageUrl || "",
@@ -108,7 +106,6 @@ const UpdateProfile = () => {
           name: updatedUser.name,
           bio: updatedUser.bio,
           location: updatedUser.location,
-          website: updatedUser.website,
           is_private: updatedUser.is_private,
           imageUrl: updatedUser.imageUrl || "",
         });
@@ -234,20 +231,6 @@ const UpdateProfile = () => {
               />
             </div>
 
-            <div>
-              <label htmlFor="website" className="block text-sm font-medium text-light-1 mb-2">
-                Website
-              </label>
-              <input
-                type="url"
-                id="website"
-                name="website"
-                value={formData.website}
-                onChange={handleChange}
-                className="w-full h-12 px-4 py-3 bg-dark-4 border border-dark-4 rounded-lg text-light-1 placeholder-light-4 focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="https://yourwebsite.com"
-              />
-            </div>
 
             <div className="bg-dark-4 p-4 rounded-lg">
               <PrivacyToggle
