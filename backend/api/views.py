@@ -172,7 +172,7 @@ class RecentPostsView(generics.ListAPIView):
             ) | models.Q(user=self.request.user)
         )
         
-        return queryset[:10]
+        return queryset.order_by('-created_at')
     
     def list(self, request, *args, **kwargs):
         response = super().list(request, *args, **kwargs)
