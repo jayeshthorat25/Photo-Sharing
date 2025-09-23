@@ -7,11 +7,13 @@ import {
   useLocation,
 } from "react-router-dom";
 
-import SimpleButton from "@/components/ui/SimpleButton";
-import { LikedPosts } from "@/_root/pages";
+import SimpleButton from "@/components/SimpleButton";
+import LikedPosts from "@/_root/pages/LikedPosts";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById, useGetUserPosts } from "@/hooks/useQueries";
-import { GridPostList, Loader, PrivacyMessage } from "@/components/shared";
+import GridPostList from "@/components/GridPostList";
+import Loader from "@/components/Loader";
+import PrivacyMessage from "@/components/PrivacyMessage";
 import { getImageUrl } from "@/lib/api";
 
 const StatBlock = ({ value, label }) => (

@@ -205,8 +205,10 @@ CORS_ALLOW_CREDENTIALS = True
 AUTH_USER_MODEL = 'api.User'
 
 # Email Configuration
-# Use SMTP backend for actual email sending
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Default to console backend for development, can be overridden with environment variables
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+
+# SMTP settings (only used if EMAIL_BACKEND is set to smtp)
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True').lower() == 'true'
@@ -214,8 +216,11 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@snapgram.com')
 
-# For development/testing, you can use console backend by setting EMAIL_BACKEND=console in .env
-if os.getenv('EMAIL_BACKEND') == 'console':
+# For development/testing, use console backend by default
+# To use SMTP, set EMAIL_BACKEND=smtp in your .env file
+if EMAIL_BACKEND == 'smtp':
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+elif EMAIL_BACKEND == 'console':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Frontend URL for password reset links

@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom';
 import { multiFormatDateString } from '@/lib/utils';
 import { useUserContext } from '@/context/AuthContext';
 import { useDeleteComment, useUpdateComment, usePinComment } from '@/hooks/useQueries';
-import SimpleButton from '@/components/ui/SimpleButton';
-import CommentOptionsMenu from '@/components/ui/CommentOptionsMenu';
+import SimpleButton from '@/components/SimpleButton';
+import CommentOptionsMenu from '@/components/CommentOptionsMenu';
 
 const Comment = ({ comment, post, onCommentUpdated }) => {
   const { user } = useUserContext();

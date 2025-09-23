@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { useCreateUserAccount, useSignInAccount } from "@/hooks/useQueries";
 import { useUserContext } from "@/context/AuthContext";
-import { useToast } from "@/components/ui/SimpleToast";
+import { useToast } from "@/components/SimpleToast";
 
 const SignupForm = () => {
   const navigate = useNavigate();
@@ -70,8 +70,8 @@ const SignupForm = () => {
     
     if (!formData.password) {
       newErrors.password = "Password is required";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
     }
     
     if (!formData.password_confirm) {

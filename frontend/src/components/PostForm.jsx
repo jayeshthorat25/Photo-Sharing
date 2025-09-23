@@ -2,14 +2,13 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
 import { useUserContext } from "@/context/AuthContext";
-import { FileUploader } from "@/components/shared";
-import { PostPrivacyToggle } from "@/components/ui";
+import FileUploader from "@/components/FileUploader";
+import PrivacyToggle from "@/components/PrivacyToggle";
 import { useCreatePost, useUpdatePost } from "@/hooks/useQueries";
 
 const PostForm = ({ post, action }) => {
   const navigate = useNavigate();
   const { user } = useUserContext();
-
 
   // Query
   const { callApi: createPost, isLoading: isLoadingCreate } = useCreatePost();
@@ -193,9 +192,10 @@ const PostForm = ({ post, action }) => {
         </div>
 
         <div className="bg-dark-4 p-4 rounded-lg">
-          <PostPrivacyToggle
+          <PrivacyToggle
             isPrivate={formData.is_private}
             onToggle={handlePrivacyToggle}
+            type="post"
           />
         </div>
 

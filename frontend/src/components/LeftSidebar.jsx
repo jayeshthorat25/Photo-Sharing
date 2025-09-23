@@ -2,9 +2,9 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 import { sidebarLinks } from "@/constants";
-import { Loader } from "@/components/shared";
-import SimpleButton from "@/components/ui/SimpleButton";
-import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import Loader from "@/components/Loader";
+import SimpleButton from "@/components/SimpleButton";
+import ConfirmationModal from "@/components/ConfirmationModal";
 import { useSignOutAccount } from "@/hooks/useQueries";
 import { useUserContext, INITIAL_USER } from "@/context/AuthContext";
 

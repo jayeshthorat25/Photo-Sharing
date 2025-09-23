@@ -1,4 +1,5 @@
-import { GridPostList, Loader } from "@/components/shared";
+import GridPostList from "@/components/GridPostList";
+import Loader from "@/components/Loader";
 import { useGetCurrentUser } from "@/hooks/useQueries";
 
 const LikedPosts = () => {

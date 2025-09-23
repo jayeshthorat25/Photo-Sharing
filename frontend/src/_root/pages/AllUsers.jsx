@@ -1,5 +1,6 @@
-import { useToast } from "@/components/ui/SimpleToast";
-import { Loader, UserCard } from "@/components/shared";
+import { useToast } from "@/components/SimpleToast";
+import Loader from "@/components/Loader";
+import UserCard from "@/components/UserCard";
 import { useGetUsers } from "@/hooks/useQueries";
 
 const AllUsers = () => {

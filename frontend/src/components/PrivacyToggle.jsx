@@ -4,8 +4,9 @@ const PrivacyToggle = ({
   isPrivate, 
   onToggle, 
   disabled = false, 
-  label = "Private Profile",
-  description = "When enabled, other users cannot see your posts unless you share them directly."
+  label = "Private",
+  description = "When enabled, this content is only visible to you.",
+  type = "profile" // "profile" or "post"
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -16,10 +17,24 @@ const PrivacyToggle = ({
     try {
       await onToggle(!isPrivate);
     } catch (error) {
-      console.error('Error toggling privacy:', error);
+      console.error(`Error toggling ${type} privacy:`, error);
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const getDefaultDescription = () => {
+    if (type === "post") {
+      return "When enabled, only you can see this post. Others can only see it if you share it directly.";
+    }
+    return "When enabled, other users cannot see your posts unless you share them directly.";
+  };
+
+  const getDefaultLabel = () => {
+    if (type === "post") {
+      return "Private Post";
+    }
+    return "Private Profile";
   };
 
   return (
@@ -27,10 +42,10 @@ const PrivacyToggle = ({
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <label className="text-sm font-medium text-light-1">
-            {label}
+            {label || getDefaultLabel()}
           </label>
           <p className="text-xs text-light-3">
-            {description}
+            {description || getDefaultDescription()}
           </p>
         </div>
         <button

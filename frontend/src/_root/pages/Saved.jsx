@@ -1,4 +1,5 @@
-import { GridPostList, Loader } from "@/components/shared";
+import GridPostList from "@/components/GridPostList";
+import Loader from "@/components/Loader";
 import { useSavedPosts } from "@/context/SavedPostsContext";
 
 const Saved = () => {
