@@ -29,7 +29,7 @@ import {
   pinComment,
   forgotPassword,
   resetPassword,
-} from '@/lib/services/api';
+} from '@/lib/api';
 
 // Simple hook for making API calls
 const useApiCall = (apiFunction, autoFetch = false) => {

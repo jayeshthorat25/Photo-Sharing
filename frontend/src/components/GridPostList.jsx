@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import { PostStats } from "@/components/shared";
+import PostStats from "@/components/PostStats";
 import { useUserContext } from "@/context/AuthContext";
 import { getImageUrl } from "@/lib/api";
 

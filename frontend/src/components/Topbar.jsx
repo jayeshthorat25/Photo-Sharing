@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 
-import SimpleButton from "../ui/SimpleButton";
-import ConfirmationModal from "../ui/ConfirmationModal";
+import SimpleButton from "./SimpleButton";
+import ConfirmationModal from "./ConfirmationModal";
 import { useUserContext } from "@/context/AuthContext";
 import { useSignOutAccount } from "@/hooks/useQueries";
 import { getImageUrl } from "@/lib/api";

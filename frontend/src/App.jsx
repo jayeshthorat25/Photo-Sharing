@@ -1,23 +1,21 @@
 import { Routes, Route } from "react-router-dom";
 
-import {
-  Home,
-  Saved,
-  CreatePost,
-  Profile,
-  EditPost,
-  PostDetails,
-  SharedPost,
-  UpdateProfile,
-  AllUsers,
-} from "@/_root/pages";
+import Home from "@/_root/pages/Home";
+import Saved from "@/_root/pages/Saved";
+import CreatePost from "@/_root/pages/CreatePost";
+import Profile from "@/_root/pages/Profile";
+import EditPost from "@/_root/pages/EditPost";
+import PostDetails from "@/_root/pages/PostDetails";
+import SharedPost from "@/_root/pages/SharedPost";
+import UpdateProfile from "@/_root/pages/UpdateProfile";
+import AllUsers from "@/_root/pages/AllUsers";
 import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import SignupForm from "@/_auth/forms/SignupForm";
 import SigninForm from "@/_auth/forms/SigninForm";
-import ForgotPassword from "@/_auth/pages/ForgotPassword";
-import ResetPassword from "@/_auth/pages/ResetPassword";
-import { ToastProvider } from "@/components/ui/SimpleToast";
+import ForgotPassword from "@/_auth/forms/ForgotPasswordForm";
+import ResetPassword from "@/_auth/forms/ResetPasswordForm";
+import { ToastProvider } from "@/components/SimpleToast";
 import { SavedPostsProvider } from "@/context/SavedPostsContext";
 
 import "./globals.css";

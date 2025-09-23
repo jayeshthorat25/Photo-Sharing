@@ -1,11 +1,14 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-import SimpleButton from "@/components/ui/SimpleButton";
-import { Loader, PrivacyMessage } from "@/components/shared";
-import { GridPostList, PostStats, CommentSection } from "@/components/shared";
-import PostOptionsMenu from "@/components/ui/PostOptionsMenu";
-import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import SimpleButton from "@/components/SimpleButton";
+import Loader from "@/components/Loader";
+import PrivacyMessage from "@/components/PrivacyMessage";
+import GridPostList from "@/components/GridPostList";
+import PostStats from "@/components/PostStats";
+import CommentSection from "@/components/CommentSection";
+import PostOptionsMenu from "@/components/PostOptionsMenu";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 import {
   useGetPostById,

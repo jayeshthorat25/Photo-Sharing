@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-import SimpleButton from "../ui/SimpleButton";
+import SimpleButton from "./SimpleButton";
 import { getImageUrl } from "@/lib/api";
 
 const UserCard = ({ user }) => {

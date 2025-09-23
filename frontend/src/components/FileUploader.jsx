@@ -1,6 +1,6 @@
 import { useCallback, useState, useRef } from "react";
 
-import SimpleButton from "@/components/ui/SimpleButton";
+import SimpleButton from "@/components/SimpleButton";
 import { convertFileToUrl } from "@/lib/utils";
 
 const FileUploader = ({ fieldChange, mediaUrl }) => {

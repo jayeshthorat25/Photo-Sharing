@@ -1,13 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 
-import { PostStats } from "@/components/shared";
+import PostStats from "@/components/PostStats";
 import { multiFormatDateString } from "@/lib/utils";
 import { useUserContext } from "@/context/AuthContext";
 import { getImageUrl } from "@/lib/api";
 import { useDeletePost } from "@/hooks/useQueries";
-import PostOptionsMenu from "@/components/ui/PostOptionsMenu";
-import ConfirmationModal from "@/components/ui/ConfirmationModal";
+import PostOptionsMenu from "@/components/PostOptionsMenu";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 const PostCard = ({ post, onPostDeleted }) => {
   const { user } = useUserContext();

@@ -1,18 +1,14 @@
-
 import { Link } from "react-router-dom";
-
 
 // The main component that renders the Landing Page
 const Landing = () => {
-
-
   return (
     <div className="relative min-h-screen font-sans antialiased overflow-hidden">
       {/* Background with gradient overlay */}
       <div className="absolute inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900"></div>
         <div className="absolute inset-0 bg-black/20"></div>
-        
+
         {/* Animated background elements */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl animate-pulse"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
@@ -24,14 +20,8 @@ const Landing = () => {
         {/* Header */}
         <header className="flex items-center justify-between p-6 lg:px-12">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-              <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <span className="text-2xl font-bold text-white">SnapGram</span>
+            <img src="/assets/images/logo.svg" alt="logo" />
           </div>
-          
         </header>
 
         {/* Hero Section */}
@@ -47,8 +37,9 @@ const Landing = () => {
                   </span>
                 </h1>
                 <p className="text-xl lg:text-2xl text-white/90 leading-relaxed max-w-2xl">
-                  Capture and share life's best memories with the world. 
-                  SnapGram makes it easy to tell your story through beautiful photos.
+                  Capture and share life's best memories with the world.
+                  SnapGram makes it easy to tell your story through beautiful
+                  photos.
                 </p>
               </div>
 
@@ -56,33 +47,77 @@ const Landing = () => {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 py-8">
                 <div className="text-center lg:text-left">
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto lg:mx-0 mb-3 backdrop-blur-sm">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                      />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                      />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Capture</h3>
-                  <p className="text-white/80 text-sm">Share stunning photos and explore</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Capture
+                  </h3>
+                  <p className="text-white/80 text-sm">
+                    Share stunning photos and explore
+                  </p>
                 </div>
-                
+
                 <div className="text-center lg:text-left">
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto lg:mx-0 mb-3 backdrop-blur-sm">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                      />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Explore</h3>
-                  <p className="text-white/80 text-sm">From your world to theirs in a snap</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Explore
+                  </h3>
+                  <p className="text-white/80 text-sm">
+                    From your world to theirs in a snap
+                  </p>
                 </div>
-                
+
                 <div className="text-center lg:text-left">
                   <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center mx-auto lg:mx-0 mb-3 backdrop-blur-sm">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                    <svg
+                      className="w-6 h-6 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+                      />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Share</h3>
-                  <p className="text-white/80 text-sm">Connect with friends and share your creativity</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">
+                    Share
+                  </h3>
+                  <p className="text-white/80 text-sm">
+                    Connect with friends and share your creativity
+                  </p>
                 </div>
               </div>
 
@@ -92,16 +127,14 @@ const Landing = () => {
                   to="/sign-up"
                   className="btn-primary text-lg px-8 py-4 rounded-2xl font-semibold
                            bg-white text-indigo-600 hover:bg-gray-100 hover:scale-105
-                           transition-all duration-300 transform shadow-2xl hover:shadow-2xl"
-                >
+                           transition-all duration-300 transform shadow-2xl hover:shadow-2xl">
                   Create an Account
                 </Link>
                 <Link
                   to="/sign-in"
                   className="btn-ghost text-lg px-8 py-4 rounded-2xl font-semibold
                            border-2 border-white/30 text-white hover:bg-white/10
-                           transition-all duration-300 transform hover:scale-105"
-                >
+                           transition-all duration-300 transform hover:scale-105">
                   Log In
                 </Link>
               </div>
@@ -120,7 +153,7 @@ const Landing = () => {
                         <div className="w-8 h-8 bg-white/20 rounded-full"></div>
                       </div>
                     </div>
-                    
+
                     {/* Mockup Content */}
                     <div className="p-4 space-y-4">
                       {/* Mock Post 1 */}
@@ -135,7 +168,7 @@ const Landing = () => {
                         <div className="w-full h-32 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-lg mb-2"></div>
                         <div className="w-24 h-3 bg-gray-300 rounded"></div>
                       </div>
-                      
+
                       {/* Mock Post 2 */}
                       <div className="bg-gray-50 rounded-xl p-3">
                         <div className="flex items-center gap-3 mb-3">
@@ -151,7 +184,7 @@ const Landing = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Floating Elements */}
                 <div className="absolute -top-4 -right-4 w-20 h-20 bg-indigo-500/20 rounded-full blur-xl animate-pulse"></div>
                 <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-purple-500/20 rounded-full blur-xl animate-pulse delay-1000"></div>

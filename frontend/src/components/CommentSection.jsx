@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { useUserContext } from '@/context/AuthContext';
 import { useGetComments, useCreateComment } from '@/hooks/useQueries';
 import Comment from './Comment';
-import SimpleButton from '@/components/ui/SimpleButton';
-import { Loader } from './index';
+import SimpleButton from '@/components/SimpleButton';
+import Loader from '@/components/Loader';
 
 const CommentSection = ({ postId, post }) => {
   const { user } = useUserContext();

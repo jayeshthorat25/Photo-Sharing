@@ -1,8 +1,9 @@
 import { useNavigate, useParams } from "react-router-dom";
 import { useState } from "react";
 
-import { ProfileUploader, Loader } from "@/components/shared";
-import { PrivacyToggle } from "@/components/ui";
+import ProfileUploader from "@/components/ProfileUploader";
+import Loader from "@/components/Loader";
+import PrivacyToggle from "@/components/PrivacyToggle";
 import { useUserContext } from "@/context/AuthContext";
 import { useGetUserById, useUpdateUser, useToggleUserPrivacy } from "@/hooks/useQueries";
 
