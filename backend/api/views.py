@@ -102,7 +102,7 @@ class UserListView(generics.ListAPIView):
 
     def get_queryset(self):
         limit = self.request.query_params.get('limit')
-        queryset = User.objects.all()
+        queryset = User.objects.all().order_by('-created_at')
         if limit:
             try:
                 queryset = queryset[:int(limit)]
@@ -147,7 +147,7 @@ class PostListView(generics.ListCreateAPIView):
             models.Q(
                 models.Q(user__is_private=False) & models.Q(is_private=False)
             ) | models.Q(user=self.request.user)
-        )
+        ).order_by('-created_at')
         return queryset[offset:offset+limit]
 
     def perform_create(self, serializer):
@@ -248,7 +248,7 @@ class PostSearchView(generics.ListAPIView):
                     models.Q(user__is_private=False) & models.Q(is_private=False)
                 ) | models.Q(user=self.request.user)
             )
-            return queryset
+            return queryset.order_by('-created_at')
         return Post.objects.none()
 
 
@@ -283,7 +283,7 @@ class UserPostsView(generics.ListAPIView):
         # If viewing another user's posts, only show public posts
         if str(user_id) != str(self.request.user.id):
             queryset = queryset.filter(is_private=False)
-        return queryset
+        return queryset.order_by('-created_at')
 
 
 class PublicUserPostsView(generics.ListAPIView):
@@ -293,7 +293,7 @@ class PublicUserPostsView(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
-        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments')
+        return Post.objects.filter(user_id=user_id).select_related('user').prefetch_related('comments').order_by('-created_at')
 
 
 class CommentListView(generics.ListCreateAPIView):
@@ -303,7 +303,7 @@ class CommentListView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         post_id = self.kwargs['post_id']
-        return Comment.objects.filter(post_id=post_id).select_related('user')
+        return Comment.objects.filter(post_id=post_id).select_related('user').order_by('-pinned', '-created_at')
 
     def perform_create(self, serializer):
         post_id = self.kwargs['post_id']
