@@ -3,9 +3,20 @@ import Loader from "@/components/Loader";
 import UserCard from "@/components/UserCard";
 import { useGetUsers } from "@/hooks/useQueries";
 
+/**
+ * All Users Page Component - People Discovery
+ * 
+ * This page displays all users in the system for discovery and networking.
+ * Features:
+ * - Shows all users without pagination limits
+ * - User cards with profile information
+ * - Follow/unfollow functionality
+ * - Error handling with toast notifications
+ */
 const AllUsers = () => {
   const { toast } = useToast();
 
+  // Fetch all users from the API (no limit = shows all users)
   const { data: creators, isLoading, error: isErrorCreators } = useGetUsers();
 
   if (isErrorCreators) {

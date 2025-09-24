@@ -16,7 +16,6 @@ urlpatterns = [
     # Post endpoints
     path('posts/', views.PostListView.as_view(), name='post-list'),
     path('posts/recent/', views.RecentPostsView.as_view(), name='recent-posts'),
-    path('posts/search/', views.PostSearchView.as_view(), name='post-search'),
     path('posts/<int:id>/', views.PostDetailView.as_view(), name='post-detail'),
     path('posts/public/<int:id>/', views.PublicPostDetailView.as_view(), name='public-post-detail'),
     path('posts/<int:post_id>/like/', views.like_post, name='like-post'),

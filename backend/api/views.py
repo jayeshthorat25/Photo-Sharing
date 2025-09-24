@@ -99,6 +99,7 @@ class UserListView(generics.ListAPIView):
     """View for listing users"""
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class = None  # Disable pagination for this view
 
     def get_queryset(self):
         limit = self.request.query_params.get('limit')
@@ -136,8 +137,6 @@ class PostListView(generics.ListCreateAPIView):
         return PostListSerializer
 
     def get_queryset(self):
-        offset = int(self.request.query_params.get('offset', 0))
-        limit = 20
         # Filter out posts from private profiles and private posts
         queryset = Post.objects.select_related('user').prefetch_related('comments', 'likes')
         # Only show posts that meet these criteria:
@@ -148,7 +147,7 @@ class PostListView(generics.ListCreateAPIView):
                 models.Q(user__is_private=False) & models.Q(is_private=False)
             ) | models.Q(user=self.request.user)
         ).order_by('-created_at')
-        return queryset[offset:offset+limit]
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -225,31 +224,6 @@ class PublicPostDetailView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Post.objects.select_related('user').prefetch_related('likes', 'comments')
-
-
-class PostSearchView(generics.ListAPIView):
-    """View for searching posts"""
-    serializer_class = PostListSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
-    def get_queryset(self):
-        search_term = self.request.query_params.get('q', '')
-        if search_term:
-            queryset = Post.objects.filter(
-                Q(caption__icontains=search_term) |
-                Q(tags__icontains=search_term) |
-                Q(location__icontains=search_term)
-            ).select_related('user').prefetch_related('likes', 'comments')
-            # Only show posts that meet these criteria:
-            # 1. Posts from public profiles (user.is_private=False) AND public posts (post.is_private=False)
-            # 2. Posts from the current user (regardless of profile or post privacy)
-            queryset = queryset.filter(
-                models.Q(
-                    models.Q(user__is_private=False) & models.Q(is_private=False)
-                ) | models.Q(user=self.request.user)
-            )
-            return queryset.order_by('-created_at')
-        return Post.objects.none()
 
 
 @api_view(['POST'])
@@ -355,18 +329,20 @@ class CommentPinView(APIView):
             # If pinning a comment, unpin all other comments on this post first
             if not comment.pinned:
                 Comment.objects.filter(post=comment.post, pinned=True).update(pinned=False)
-                comment.pinned = True
-                comment.save()
+                # Use update() instead of save() to avoid updating updated_at field
+                Comment.objects.filter(id=comment.id).update(pinned=True)
                 message = 'Comment pinned successfully. Other pinned comments have been unpinned.'
             else:
                 # If unpinning, just unpin this comment
-                comment.pinned = False
-                comment.save()
+                # Use update() instead of save() to avoid updating updated_at field
+                Comment.objects.filter(id=comment.id).update(pinned=False)
                 message = 'Comment unpinned successfully.'
             
+            # Get the updated comment to return the current pinned status
+            updated_comment = Comment.objects.get(id=comment_id)
             return Response({
                 'message': message,
-                'pinned': comment.pinned
+                'pinned': updated_comment.pinned
             })
             
         except Comment.DoesNotExist:

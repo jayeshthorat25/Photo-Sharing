@@ -47,8 +47,7 @@ const PostOptionsMenu = ({
         title: 'Check out this post on SnapGram',
         url: shareUrl,
       }).catch((error) => {
-        console.log('Error sharing:', error);
-        // Fallback to clipboard
+        // Fallback to clipboard if sharing fails
         copyToClipboard(shareUrl);
       });
     } else {

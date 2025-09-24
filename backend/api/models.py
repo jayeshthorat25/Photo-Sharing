@@ -3,20 +3,40 @@ from django.db import models
 from django.utils import timezone
 from .cloudinary_utils import upload_to_cloudinary, delete_from_cloudinary
 
+"""
+SnapGram Database Models
+
+This file defines the core data models for the SnapGram social media application.
+The models represent users, posts, and comments with relationships and business logic.
+"""
 
 class User(AbstractUser):
-    """Custom User model extending Django's AbstractUser"""
-    name = models.CharField(max_length=255, blank=True)
-    username = models.CharField(max_length=150, unique=True)
-    email = models.EmailField(unique=True)
-    bio = models.TextField(blank=True, max_length=500)
-    location = models.CharField(max_length=255, blank=True)
-    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store Cloudinary URL
-    is_private = models.BooleanField(default=False)  # Privacy setting for profile
-    reset_token = models.CharField(max_length=100, blank=True, null=True)
-    reset_token_expires = models.DateTimeField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    """
+    Custom User Model - Core user profile and authentication
+    
+    Extends Django's AbstractUser to add social media specific fields.
+    Features:
+    - Profile customization (name, bio, location, avatar)
+    - Privacy controls (public/private profiles)
+    - Password reset functionality
+    - Cloudinary integration for image storage
+    """
+    # Profile Information
+    name = models.CharField(max_length=255, blank=True)                    # Display name
+    username = models.CharField(max_length=150, unique=True)              # Unique username
+    email = models.EmailField(unique=True)                                # Login email
+    bio = models.TextField(blank=True, max_length=500)                    # User bio/description
+    location = models.CharField(max_length=255, blank=True)               # User location
+    image_path = models.CharField(max_length=500, blank=True, null=True)  # Cloudinary avatar URL
+    
+    # Privacy and Security
+    is_private = models.BooleanField(default=False)                         # Profile privacy setting
+    reset_token = models.CharField(max_length=100, blank=True, null=True)  # Password reset token
+    reset_token_expires = models.DateTimeField(blank=True, null=True)     # Token expiration
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)                    # Account creation time
+    updated_at = models.DateTimeField(auto_now=True)                      # Last profile update
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'name']
@@ -53,15 +73,30 @@ class User(AbstractUser):
 
 
 class Post(models.Model):
-    """Post model for social media posts"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-    caption = models.TextField()
-    image_path = models.CharField(max_length=500, blank=True, null=True)  # Store Cloudinary URL
-    location = models.CharField(max_length=255, blank=True)
-    tags = models.CharField(max_length=500, blank=True)
-    is_private = models.BooleanField(default=False)  # Privacy setting for individual posts
-    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    """
+    Post Model - Social media posts and content
+    
+    Represents individual posts in the social media feed.
+    Features:
+    - Rich content (text, images, location, tags)
+    - Privacy controls (public/private posts)
+    - Social interactions (likes, comments)
+    - Cloudinary integration for image storage
+    - Automatic cleanup on deletion
+    """
+    # Core Content
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')  # Post author
+    caption = models.TextField()                                                    # Post text content
+    image_path = models.CharField(max_length=500, blank=True, null=True)            # Cloudinary image URL
+    location = models.CharField(max_length=255, blank=True)                         # Post location
+    tags = models.CharField(max_length=500, blank=True)                             # Hashtags and tags
+    
+    # Privacy and Social Features
+    is_private = models.BooleanField(default=False)                                 # Post privacy setting
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)   # Users who liked this post
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)                            # Post creation time
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
