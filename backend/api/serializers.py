@@ -63,7 +63,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating user profile"""
     imageUrl = serializers.ReadOnlyField()
-    image = serializers.ImageField(write_only=True, required=False)
+    image = serializers.FileField(write_only=True, required=False)
 
     class Meta:
         model = User
@@ -152,7 +152,7 @@ class PostListSerializer(serializers.ModelSerializer):
 
 class PostCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating posts"""
-    image = serializers.ImageField(write_only=True, required=False)
+    image = serializers.FileField(write_only=True, required=False)
     
     class Meta:
         model = Post
@@ -165,14 +165,15 @@ class PostCreateSerializer(serializers.ModelSerializer):
             image_file = validated_data.pop('image')
             post = super().create(validated_data)
             post._image_file = image_file
-            post.save()
+            # Save without updating the updated_at field for image processing
+            post.save(update_fields=['image_path'])
             return post
         return super().create(validated_data)
 
 
 class PostUpdateSerializer(serializers.ModelSerializer):
     """Serializer for updating posts"""
-    image = serializers.ImageField(write_only=True, required=False)
+    image = serializers.FileField(write_only=True, required=False)
     
     class Meta:
         model = Post
@@ -182,6 +183,11 @@ class PostUpdateSerializer(serializers.ModelSerializer):
         # Store the image file temporarily for processing in save method
         if 'image' in validated_data:
             instance._image_file = validated_data.pop('image')
+            # Update other fields first
+            instance = super().update(instance, validated_data)
+            # Save image without updating updated_at field
+            instance.save(update_fields=['image_path'])
+            return instance
         return super().update(instance, validated_data)
 
 

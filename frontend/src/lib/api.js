@@ -1,19 +1,39 @@
 import axios from "axios";
 
+/**
+ * API Configuration and Utilities
+ * 
+ * This file contains all API calls and configuration for the SnapGram application.
+ * It handles authentication, image URLs, and all backend communication.
+ */
+
+// Base URL for the Django REST API backend
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000";
 
+/**
+ * Converts relative image URLs to absolute URLs
+ * Handles both local assets and Cloudinary URLs
+ * @param {string} imageUrl - The image URL to process
+ * @returns {string|null} - Absolute URL or null if invalid
+ */
 export const getImageUrl = (imageUrl) => {
   if (!imageUrl) return null;
-  if (imageUrl.startsWith('http')) return imageUrl;
+  if (imageUrl.startsWith('http')) return imageUrl; // Already absolute (Cloudinary)
   if (imageUrl.startsWith('/assets/images/')) return imageUrl; // Local frontend path
-  return `${API_BASE_URL}${imageUrl}`;
+  return `${API_BASE_URL}${imageUrl}`; // Backend relative path
 };
 
+// Axios instance configured for API calls
 export const api = axios.create({
 	baseURL: API_BASE_URL,
-	withCredentials: false,
+	withCredentials: false, // CORS handling
 });
 
+/**
+ * Sets or removes JWT authentication token
+ * Stores token in localStorage for persistence across sessions
+ * @param {string|null} token - JWT token or null to remove
+ */
 export const setAuthToken = (token) => {
 	if (token) {
 		api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
@@ -167,39 +187,29 @@ export const createPost = async (post) => {
   }
 };
 
-export const getRecentPosts = async () => {
-  try {
-    const response = await api.get('/api/posts/recent/');
-    return { documents: response.data.results || response.data };
-  } catch (error) {
-    console.error('Error getting recent posts:', error);
-    throw error;
-  }
-};
 
-export const getInfinitePosts = async ({ pageParam = 0 }) => {
+export const getInfinitePosts = async ({ pageParam = 1 }) => {
   try {
     const response = await api.get('/api/posts/', {
-      params: { offset: pageParam }
+      params: { page: pageParam }
     });
-    return { documents: response.data.results || response.data };
+    
+    // Extract posts from paginated response
+    const posts = response.data.results || response.data;
+    const hasNext = response.data.next !== null;
+    const hasMore = hasNext || (posts && posts.length === 10);
+    
+    return { 
+      documents: posts,
+      nextPage: hasMore ? pageParam + 1 : null,
+      hasMore: hasMore
+    };
   } catch (error) {
     console.error('Error getting infinite posts:', error);
     throw error;
   }
 };
 
-export const searchPosts = async (searchTerm) => {
-  try {
-    const response = await api.get('/api/posts/search/', {
-      params: { q: searchTerm }
-    });
-    return { documents: response.data.results || response.data };
-  } catch (error) {
-    console.error('Error searching posts:', error);
-    throw error;
-  }
-};
 
 export const getPostById = async (postId) => {
   try {

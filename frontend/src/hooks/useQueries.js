@@ -16,9 +16,7 @@ import {
   getUserById,
   updateUser,
   toggleUserPrivacy,
-  getRecentPosts,
   getInfinitePosts,
-  searchPosts,
   savePost,
   deleteSavedPost,
   getSavedPosts,
@@ -76,11 +74,6 @@ export const useSignOutAccount = () => useApiCall(signOutAccount);
 // ============================================================
 
 export const useGetPosts = () => useApiCall(getInfinitePosts);
-export const useSearchPosts = (searchTerm) => {
-  const apiFunction = useCallback(() => searchPosts(searchTerm), [searchTerm]);
-  return useApiCall(apiFunction);
-};
-export const useGetRecentPosts = () => useApiCall(getRecentPosts, true); // Auto-fetch
 export const useCreatePost = () => useApiCall(createPost);
 export const useGetPostById = (postId) => {
   const apiFunction = useCallback(() => {
